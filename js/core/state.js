@@ -29,6 +29,21 @@ if (!state.ui.selection) {
 
 const listeners = new Set();
 
+function buildSearchIndex(book) {
+  return [
+    book.title,
+    book.subtitle,
+    ...(book.authors || []),
+    book.publisher,
+    book.isbn10,
+    book.isbn13,
+    book.notes,
+    ...(book.tags || [])
+  ]
+    .join(" ")
+    .toLowerCase();
+}
+
 function notify() {
   const snapshot = getState();
 
@@ -54,7 +69,7 @@ export function subscribe(listener) {
 }
 
 export function addBook(bookData) {
-  state.books.unshift({
+  const book = {
     id: crypto.randomUUID(),
 
     createdAt: Date.now(),
@@ -111,8 +126,15 @@ export function addBook(bookData) {
 
     notes:
       bookData.notes || ""
-  });
 
+    searchIndex: ""
+  };
+
+  book.searchIndex =
+    buildSearchIndex(book);
+  
+  state.books.unshift(book);
+  
   notify();
 }
 
@@ -129,8 +151,11 @@ export function updateBook(
   }
 
   Object.assign(target, updates, {
-    updatedAt: Date.now()
-  });
+  updatedAt: Date.now()
+});
+
+target.searchIndex =
+  buildSearchIndex(target);
 
   notify();
 }
@@ -268,7 +293,13 @@ export function replaceState(
   nextState
 ) {
   state.books =
-    nextState.books || [];
+    (nextState.books || []).map(
+      (book) => ({
+        ...book,
+        searchIndex:
+          buildSearchIndex(book)
+      })
+    );
 
   state.ui = {
     ...state.ui,
