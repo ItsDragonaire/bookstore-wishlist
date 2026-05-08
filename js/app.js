@@ -57,6 +57,10 @@ const themeToggle =
     "#theme-toggle"
   );
 
+let previousView = null;
+
+let previousBookCount = 0;
+
 function applyTheme(theme) {
   const resolved =
     theme === "system"
@@ -87,18 +91,8 @@ function filterBooks(
   } = state.ui;
 
   return books.filter((book) => {
-    const searchable = [
-      book.title,
-      book.subtitle,
-      ...(book.authors || []),
-      book.publisher,
-      book.isbn10,
-      book.isbn13,
-      book.notes,
-      ...(book.tags || [])
-    ]
-      .join(" ")
-      .toLowerCase();
+    const searchable =
+      book.searchIndex || "";
 
     const matchesSearch =
       !searchQuery ||
@@ -296,11 +290,26 @@ async function render(state) {
     });
   }
 
-  await mountInteractions(
-    state,
-    books
-  );
-}
+  const shouldRemountInteractions =
+    previousView !==
+      state.ui.currentView ||
+    previousBookCount !==
+      books.length;
+  
+  if (
+    shouldRemountInteractions
+  ) {
+    await mountInteractions(
+      state,
+      books
+    );
+  }
+  
+  previousView =
+    state.ui.currentView;
+  
+  previousBookCount =
+    books.length;
 
 async function registerServiceWorker() {
   if (
