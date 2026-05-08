@@ -44,6 +44,18 @@ function buildNotification({
     "role",
     "status"
   );
+  
+  element.setAttribute(
+    "aria-atomic",
+    "true"
+  );
+  
+  if (type === "error") {
+    element.setAttribute(
+      "role",
+      "alert"
+    );
+  }
 
   element.innerHTML = `
     <div class="notification__content">
