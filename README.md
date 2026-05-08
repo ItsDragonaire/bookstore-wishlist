@@ -1,6 +1,7 @@
-#[UNDER HEAVY DEVELOPEMENT]
-
-===
+#UNDER HEAVY DEVELOPEMENT
+---
+---
+---
 
 # bookstore wishlist manager
 
