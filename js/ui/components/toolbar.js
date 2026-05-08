@@ -9,7 +9,9 @@ let filtersMounted = false;
 
 export function initializeToolbar() {
   const toolbar =
-    document.querySelector(".toolbar");
+    document.querySelector(
+      ".toolbar"
+    );
 
   if (!filtersMounted) {
     toolbar.append(
@@ -18,6 +20,49 @@ export function initializeToolbar() {
 
     filtersMounted = true;
   }
+
+  const printButton =
+    document.createElement(
+      "button"
+    );
+
+  printButton.className =
+    "button button--secondary";
+
+  printButton.type = "button";
+
+  printButton.textContent =
+    "print";
+
+  printButton.addEventListener(
+    "click",
+    () => {
+      window.print();
+    }
+  );
+
+  toolbar
+    .querySelector(
+      ".toolbar__actions"
+    )
+    ?.append(printButton);
+
+  const viewButtons =
+    document.querySelectorAll(
+      ".view-switcher__button"
+    );
+
+  viewButtons.forEach((button) => {
+    button.addEventListener(
+      "click",
+      () => {
+        setView(
+          button.dataset.view
+        );
+      }
+    );
+  });
+}
 
   const viewButtons =
     document.querySelectorAll(
