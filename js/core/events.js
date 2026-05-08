@@ -8,7 +8,9 @@ export function on(eventName, handler) {
   listeners.get(eventName).add(handler);
 
   return () => {
-    listeners.get(eventName)?.delete(handler);
+    listeners.get(eventName)?.delete(
+      handler
+    );
   };
 }
 
@@ -24,7 +26,8 @@ export function once(eventName, handler) {
 }
 
 export function emit(eventName, payload) {
-  const handlers = listeners.get(eventName);
+  const handlers =
+    listeners.get(eventName);
 
   if (!handlers) {
     return;
@@ -33,4 +36,10 @@ export function emit(eventName, payload) {
   for (const handler of handlers) {
     handler(payload);
   }
+}
+
+export function clearEvent(
+  eventName
+) {
+  listeners.delete(eventName);
 }
