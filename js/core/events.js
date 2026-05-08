@@ -1,20 +1,31 @@
 const listeners = new Map();
 
-export function on(eventName, handler) {
+export function on(
+  eventName,
+  handler
+) {
   if (!listeners.has(eventName)) {
-    listeners.set(eventName, new Set());
+    listeners.set(
+      eventName,
+      new Set()
+    );
   }
 
-  listeners.get(eventName).add(handler);
+  listeners
+    .get(eventName)
+    .add(handler);
 
   return () => {
-    listeners.get(eventName)?.delete(
-      handler
-    );
+    listeners
+      .get(eventName)
+      ?.delete(handler);
   };
 }
 
-export function once(eventName, handler) {
+export function once(
+  eventName,
+  handler
+) {
   const unsubscribe = on(
     eventName,
     (payload) => {
@@ -25,7 +36,10 @@ export function once(eventName, handler) {
   );
 }
 
-export function emit(eventName, payload) {
+export function emit(
+  eventName,
+  payload
+) {
   const handlers =
     listeners.get(eventName);
 
