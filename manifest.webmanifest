@@ -1,7 +1,7 @@
 {
   "name": "bookstore wishlist",
   "short_name": "books",
-  "description": "minimalist bookstore wishlist and ordering manager for long-term personal collections",
+  "description": "minimalist books list maker",
   "lang": "en",
   "start_url": "./",
   "scope": "./",
