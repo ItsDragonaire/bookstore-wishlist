@@ -1,36 +1,116 @@
-const stack = document.createElement("div");
+let stack =
+  document.querySelector(
+    ".notification-stack"
+  );
 
-stack.className = "notification-stack";
+if (!stack) {
+  stack =
+    document.createElement(
+      "section"
+    );
 
-document.body.append(stack);
+  stack.className =
+    "notification-stack";
 
-export function notify({
+  document.body.append(stack);
+}
+
+function buildNotification({
   title,
-  text = ""
+  text,
+  type = "info"
 }) {
-  const item = document.createElement("article");
+  const element =
+    document.createElement(
+      "article"
+    );
 
-  item.className = "notification";
+  element.className =
+    `notification notification--${type}`;
 
-  item.innerHTML = `
-    <h3 class="notification__title">
-      ${title}
-    </h3>
+  element.setAttribute(
+    "role",
+    "status"
+  );
 
-    ${
-      text
-        ? `
+  element.innerHTML = `
+    <div class="notification__content">
+      <h3 class="notification__title">
+        ${title}
+      </h3>
+
+      ${
+        text
+          ? `
           <p class="notification__text">
             ${text}
           </p>
         `
-        : ""
-    }
+          : ""
+      }
+    </div>
+
+    <button
+      class="notification__close"
+      type="button"
+      aria-label="dismiss notification"
+    >
+      ×
+    </button>
   `;
 
-  stack.append(item);
+  element
+    .querySelector(
+      ".notification__close"
+    )
+    .addEventListener(
+      "click",
+      () => {
+        removeNotification(
+          element
+        );
+      }
+    );
 
-  setTimeout(() => {
-    item.remove();
-  }, 3200);
+  return element;
+}
+
+function removeNotification(
+  element
+) {
+  element.classList.add(
+    "is-removing"
+  );
+
+  window.setTimeout(() => {
+    element.remove();
+  }, 180);
+}
+
+export function notify({
+  title,
+  text = "",
+  type = "info",
+  duration = 3200
+}) {
+  const notification =
+    buildNotification({
+      title,
+      text,
+      type
+    });
+
+  stack.append(notification);
+
+  requestAnimationFrame(() => {
+    notification.classList.add(
+      "is-visible"
+    );
+  });
+
+  window.setTimeout(() => {
+    removeNotification(
+      notification
+    );
+  }, duration);
 }
