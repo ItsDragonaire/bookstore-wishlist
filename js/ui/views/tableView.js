@@ -1,7 +1,4 @@
-import {
-  getState,
-  toggleSelection
-} from "../../core/state.js";
+import { toggleSelection } from "../../core/state.js";
 
 import { openModal } from "../components/modal.js";
 
@@ -183,6 +180,10 @@ export function renderTableView({
   });
 
   tbody.append(fragment);
+
+container
+  .querySelectorAll(".print-summary")
+  .forEach((node) => node.remove());
   
 if (isPrint) {
   const summary =
@@ -208,7 +209,7 @@ if (isPrint) {
     </div>
   `;
 
-  container.prepend(summary);
+  container.append(summary);
 }
-  container.append(wrapper);
-}
+
+container.append(wrapper);
