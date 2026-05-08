@@ -209,7 +209,17 @@ export async function importJsonBackup(
   }
 
   const candidate =
-    parsed.data || parsed;
+    parsed?.data || parsed;
+  
+  if (
+    !candidate ||
+    typeof candidate !==
+      "object"
+  ) {
+    throw new Error(
+      "backup payload invalid"
+    );
+  }
 
   const normalized =
     normalizeState(
@@ -223,7 +233,7 @@ export async function importJsonBackup(
 
   if (!valid) {
     throw new Error(
-      "invalid backup schema"
+      "backup structure unsupported or corrupted"
     );
   }
 
