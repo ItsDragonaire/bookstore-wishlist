@@ -1,5 +1,5 @@
 import {
-  createDefaultState,
+  DEFAULT_STATE,
   validateState
 } from "./schema.js";
 
