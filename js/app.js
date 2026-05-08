@@ -1,16 +1,20 @@
 import {
-  addBook,
   getState,
   setTheme,
-  setView,
-  subscribe,
-  updateSearch
+  subscribe
 } from "./core/state.js";
 
-const root = document.querySelector("#view-root");
+import { initializeToolbar } from "./ui/components/toolbar.js";
 
-const searchInput =
-  document.querySelector("#search-input");
+import { openModal } from "./ui/components/modal.js";
+
+import { createBookForm } from "./ui/components/bookForm.js";
+
+import { renderTableView } from "./ui/views/tableView.js";
+
+import { renderCardView } from "./ui/views/cardView.js";
+
+const root = document.querySelector("#view-root");
 
 const collectionMeta =
   document.querySelector("#collection-meta");
@@ -20,14 +24,6 @@ const addBookButton =
 
 const themeToggle =
   document.querySelector("#theme-toggle");
-
-const viewButtons = document.querySelectorAll(
-  ".view-switcher__button"
-);
-
-const rowTemplate = document.querySelector(
-  "#book-row-template"
-);
 
 function applyTheme(theme) {
   const resolvedTheme =
@@ -43,94 +39,52 @@ function applyTheme(theme) {
     resolvedTheme;
 }
 
-function renderBooks(state) {
-  root.innerHTML = "";
-
+function getFilteredBooks(state) {
   const query =
     state.ui.searchQuery.toLowerCase();
 
-  const books = state.books.filter((book) => {
+  return state.books.filter((book) => {
     const searchable = [
       book.title,
       ...(book.authors || []),
-      book.isbn10,
-      book.isbn13
+      book.isbn13,
+      book.notes
     ]
       .join(" ")
       .toLowerCase();
 
     return searchable.includes(query);
   });
+}
+
+function render(state) {
+  root.innerHTML = "";
+
+  applyTheme(state.ui.theme);
+
+  const books = getFilteredBooks(state);
 
   collectionMeta.textContent =
     `${books.length} book${
       books.length === 1 ? "" : "s"
     }`;
 
-  if (books.length === 0) {
-    const empty = document.createElement("div");
-
-    empty.className = "book-row";
-
-    empty.innerHTML = `
-      <div>
-        <h3 class="book-title">
-          no books yet
-        </h3>
-
-        <p class="book-author">
-          start building your collection
-        </p>
-      </div>
-    `;
-
-    root.append(empty);
-
-    return;
-  }
-
-  for (const book of books) {
-    const fragment =
-      rowTemplate.content.cloneNode(true);
-
-    fragment.querySelector(".book-title").textContent =
-      book.title;
-
-    fragment.querySelector(".book-author").textContent =
-      book.authors.join(", ") || "unknown author";
-
-    fragment.querySelector(".book-status").textContent =
-      book.status;
-
-    fragment.querySelector(".book-priority").textContent =
-      `${book.priority} priority`;
-
-    root.append(fragment);
+  if (state.ui.currentView === "card") {
+    renderCardView({
+      container: root,
+      books,
+      state
+    });
+  } else {
+    renderTableView({
+      container: root,
+      books,
+      state
+    });
   }
 }
 
-function syncControls(state) {
-  searchInput.value = state.ui.searchQuery;
-
-  viewButtons.forEach((button) => {
-    button.classList.toggle(
-      "is-active",
-      button.dataset.view === state.ui.currentView
-    );
-  });
-
-  applyTheme(state.ui.theme);
-}
-
-function render(state) {
-  syncControls(state);
-
-  renderBooks(state);
-}
-
-searchInput.addEventListener("input", (event) => {
-  updateSearch(event.target.value);
-});
+initializeToolbar();
 
 themeToggle.addEventListener("click", () => {
   const current = getState().ui.theme;
@@ -145,16 +99,16 @@ themeToggle.addEventListener("click", () => {
   setTheme(next);
 });
 
-viewButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    setView(button.dataset.view);
-  });
-});
-
 addBookButton.addEventListener("click", () => {
-  addBook({
-    title: "new book",
-    authors: ["unknown author"]
+  openModal({
+    title: "add book",
+    description:
+      "manually add a book to your collection",
+
+    content: createBookForm({
+      mode: "create",
+      state: getState()
+    })
   });
 });
 
