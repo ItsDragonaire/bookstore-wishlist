@@ -1,6 +1,6 @@
 import {
   createDefaultState,
-  validateStateShape
+  validateState
 } from "./schema.js";
 
 const STORAGE_KEY =
@@ -66,8 +66,9 @@ export function clearStorage() {
 
 export function loadState() {
   const defaults =
-    createDefaultState();
-
+    structuredClone(
+      DEFAULT_STATE
+    );
   let parsed;
 
   try {
@@ -92,34 +93,34 @@ export function loadState() {
     return defaults;
   }
 
-  const valid =
-    validateStateShape(
-      parsed
-    );
+  let valid;
 
-  if (!valid) {
+  try {
+    valid =
+      validateState(parsed);
+  } catch {
     console.warn(
       "invalid storage schema"
     );
-
+  
     clearStorage();
-
+  
     return defaults;
   }
 
   return {
     ...defaults,
-    ...parsed,
+    ...valid,
 
     books: Array.isArray(
-      parsed.books
+      valid.books
     )
-      ? parsed.books
+      ? valid.books
       : [],
 
     ui: {
       ...defaults.ui,
-      ...(parsed.ui || {})
+      ...(valid.ui || {})
     }
   };
 }
