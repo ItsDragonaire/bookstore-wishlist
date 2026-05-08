@@ -264,6 +264,20 @@ export function setPrintMode(
   notify();
 }
 
+export function replaceState(
+  nextState
+) {
+  state.books =
+    nextState.books || [];
+
+  state.ui = {
+    ...state.ui,
+    ...(nextState.ui || {})
+  };
+
+  notify();
+}
+
 export function updateFilters(
   filters = {}
 ) {
