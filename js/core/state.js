@@ -255,6 +255,15 @@ export function setView(view) {
   notify();
 }
 
+export function setPrintMode(
+  enabled
+) {
+  state.ui.printMode =
+    Boolean(enabled);
+
+  notify();
+}
+
 export function updateFilters(
   filters = {}
 ) {
