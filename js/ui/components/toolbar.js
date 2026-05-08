@@ -62,6 +62,7 @@ function createExportPanel() {
       class="button button--secondary"
       type="button"
       id="install-app"
+      aria-label="install bookstore app"
     >
       install app
     </button>
@@ -70,6 +71,7 @@ function createExportPanel() {
       class="button button--primary"
       type="button"
       id="print-collection"
+      aria-label="print bookstore order sheet"
     >
       print order sheet
     </button>
@@ -265,6 +267,11 @@ export function initializeToolbar() {
 
   exportButton.textContent =
     "export";
+
+  exportButton.setAttribute(
+    "aria-label",
+    "open export and backup tools"
+  );
 
   exportButton.addEventListener(
     "click",
