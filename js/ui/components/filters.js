@@ -9,12 +9,16 @@ let debounceTimer = null;
 function option(
   value,
   label,
-  selected
+  current
 ) {
   return `
     <option
       value="${value}"
-      ${selected ? "selected" : ""}
+      ${
+        current === value
+          ? "selected"
+          : ""
+      }
     >
       ${label}
     </option>
@@ -27,215 +31,178 @@ export function createFilters() {
   const wrapper =
     document.createElement("section");
 
-  wrapper.className = "filters-panel";
+  wrapper.className = "toolbar-filters";
 
   wrapper.innerHTML = `
-    <div class="filters-grid">
-      <div class="form-field">
-        <label class="form-label">
-          status
-        </label>
+    <div class="toolbar-grid">
+      <input
+        class="search-input"
+        id="advanced-search"
+        type="search"
+        placeholder="search title, author, isbn, publisher"
+        value="${state.ui.searchQuery}"
+      />
 
-        <select
-          class="select"
-          id="filter-status"
-        >
-          ${option("", "all", true)}
-          ${option(
-            "wishlist",
-            "wishlist"
-          )}
-          ${option(
-            "ordered",
-            "ordered"
-          )}
-          ${option("owned", "owned")}
-        </select>
-      </div>
+      <select
+        class="select"
+        id="filter-status"
+      >
+        ${option(
+          "",
+          "all statuses",
+          state.ui.filters.status
+        )}
 
-      <div class="form-field">
-        <label class="form-label">
-          priority
-        </label>
+        ${option(
+          "wishlist",
+          "wishlist",
+          state.ui.filters.status
+        )}
 
-        <select
-          class="select"
-          id="filter-priority"
-        >
-          ${option("", "all", true)}
-          ${option("low", "low")}
-          ${option(
-            "medium",
-            "medium"
-          )}
-          ${option("high", "high")}
-        </select>
-      </div>
+        ${option(
+          "ordered",
+          "ordered",
+          state.ui.filters.status
+        )}
 
-      <div class="form-field">
-        <label class="form-label">
-          publisher
-        </label>
+        ${option(
+          "owned",
+          "owned",
+          state.ui.filters.status
+        )}
+      </select>
 
-        <input
-          class="input"
-          id="filter-publisher"
-          placeholder="publisher"
-        />
-      </div>
+      <select
+        class="select"
+        id="filter-priority"
+      >
+        ${option(
+          "",
+          "all priorities",
+          state.ui.filters.priority
+        )}
 
-      <div class="form-field">
-        <label class="form-label">
-          tags
-        </label>
+        ${option(
+          "low",
+          "low",
+          state.ui.filters.priority
+        )}
 
-        <input
-          class="input"
-          id="filter-tags"
-          placeholder="comma separated"
-        />
-      </div>
+        ${option(
+          "medium",
+          "medium",
+          state.ui.filters.priority
+        )}
 
-      <div class="form-field">
-        <label class="form-label">
-          sort by
-        </label>
+        ${option(
+          "high",
+          "high",
+          state.ui.filters.priority
+        )}
+      </select>
 
-        <select
-          class="select"
-          id="sort-by"
-        >
-          <option value="createdAt">
-            date added
-          </option>
+      <select
+        class="select"
+        id="sort-by"
+      >
+        ${option(
+          "createdAt",
+          "date added",
+          state.ui.sort.by
+        )}
 
-          <option value="title">
-            title
-          </option>
+        ${option(
+          "title",
+          "title",
+          state.ui.sort.by
+        )}
 
-          <option value="author">
-            author
-          </option>
+        ${option(
+          "author",
+          "author",
+          state.ui.sort.by
+        )}
 
-          <option value="publishYear">
-            publish year
-          </option>
+        ${option(
+          "publishYear",
+          "publish year",
+          state.ui.sort.by
+        )}
 
-          <option value="priority">
-            priority
-          </option>
+        ${option(
+          "priority",
+          "priority",
+          state.ui.sort.by
+        )}
 
-          <option value="status">
-            status
-          </option>
-        </select>
-      </div>
+        ${option(
+          "status",
+          "status",
+          state.ui.sort.by
+        )}
+      </select>
 
-      <div class="form-field">
-        <label class="form-label">
-          direction
-        </label>
+      <button
+        class="button button--secondary"
+        id="sort-direction"
+        type="button"
+      >
+        ${
+          state.ui.sort.direction ===
+          "asc"
+            ? "ascending"
+            : "descending"
+        }
+      </button>
 
-        <select
-          class="select"
-          id="sort-direction"
-        >
-          <option value="asc">
-            ascending
-          </option>
-
-          <option value="desc">
-            descending
-          </option>
-        </select>
-      </div>
-    </div>
-
-    <div class="form-actions">
       <button
         class="button button--secondary"
         id="reset-filters"
         type="button"
       >
-        reset filters
+        reset
       </button>
     </div>
   `;
 
-  const currentFilters =
-    state.ui.filters;
+  const search =
+    wrapper.querySelector(
+      "#advanced-search"
+    );
 
-  const currentSort =
-    state.ui.sort;
-
-  wrapper.querySelector(
-    "#filter-status"
-  ).value =
-    currentFilters.status || "";
-
-  wrapper.querySelector(
-    "#filter-priority"
-  ).value =
-    currentFilters.priority || "";
-
-  wrapper.querySelector(
-    "#filter-publisher"
-  ).value =
-    currentFilters.publisher || "";
-
-  wrapper.querySelector(
-    "#filter-tags"
-  ).value =
-    currentFilters.tags || "";
-
-  wrapper.querySelector(
-    "#sort-by"
-  ).value =
-    currentSort.by;
-
-  wrapper.querySelector(
-    "#sort-direction"
-  ).value =
-    currentSort.direction;
-
-  function syncFilters() {
+  search.addEventListener("input", () => {
     clearTimeout(debounceTimer);
 
     debounceTimer = setTimeout(() => {
       updateFilters({
-        status:
-          wrapper.querySelector(
-            "#filter-status"
-          ).value,
-
-        priority:
-          wrapper.querySelector(
-            "#filter-priority"
-          ).value,
-
-        publisher:
-          wrapper.querySelector(
-            "#filter-publisher"
-          ).value,
-
-        tags:
-          wrapper.querySelector(
-            "#filter-tags"
-          ).value
+        searchQuery: search.value
       });
-    }, 260);
-  }
+    }, 220);
+  });
 
   wrapper
-    .querySelectorAll(
-      "input, select"
-    )
-    .forEach((element) => {
-      element.addEventListener(
-        "input",
-        syncFilters
-      );
-    });
+    .querySelector("#filter-status")
+    .addEventListener(
+      "change",
+      (event) => {
+        updateFilters({
+          status:
+            event.target.value
+        });
+      }
+    );
+
+  wrapper
+    .querySelector("#filter-priority")
+    .addEventListener(
+      "change",
+      (event) => {
+        updateFilters({
+          priority:
+            event.target.value
+        });
+      }
+    );
 
   wrapper
     .querySelector("#sort-by")
@@ -249,31 +216,34 @@ export function createFilters() {
     );
 
   wrapper
-    .querySelector(
-      "#sort-direction"
-    )
+    .querySelector("#sort-direction")
     .addEventListener(
-      "change",
-      (event) => {
+      "click",
+      () => {
+        const current =
+          getState().ui.sort
+            .direction;
+
         updateSort({
           direction:
-            event.target.value
+            current === "asc"
+              ? "desc"
+              : "asc"
         });
       }
     );
 
   wrapper
-    .querySelector(
-      "#reset-filters"
-    )
+    .querySelector("#reset-filters")
     .addEventListener(
       "click",
       () => {
         updateFilters({
+          searchQuery: "",
           status: "",
           priority: "",
-          publisher: "",
-          tags: ""
+          tags: "",
+          publisher: ""
         });
       }
     );
