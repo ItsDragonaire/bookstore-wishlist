@@ -13,6 +13,8 @@ import {
 
 import { createFilters } from "./filters.js";
 
+import { openInstallPrompt } from "../../pwa/installPrompt.js";
+
 import {
   closeModal,
   openModal
@@ -54,6 +56,14 @@ function createExportPanel() {
       id="import-json"
     >
       restore backup
+    </button>
+
+    <button
+      class="button button--secondary"
+      type="button"
+      id="install-app"
+    >
+      install app
     </button>
 
     <button
@@ -136,6 +146,17 @@ function createExportPanel() {
       "click",
       () => {
         importInput.click();
+      }
+    );
+
+  wrapper
+    .querySelector(
+      "#install-app"
+    )
+    .addEventListener(
+      "click",
+      () => {
+        openInstallPrompt();
       }
     );
 
