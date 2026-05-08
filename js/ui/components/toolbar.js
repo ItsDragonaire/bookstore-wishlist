@@ -6,6 +6,8 @@ import {
 
 import { createFilters } from "./filters.js";
 
+import { exportBooksCsv } from "../../utils/csv.js";
+
 let filtersMounted = false;
 
 export function initializeToolbar() {
