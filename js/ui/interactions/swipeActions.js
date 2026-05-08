@@ -9,6 +9,9 @@ const SWIPE_THRESHOLD = 88;
 
 const MAX_VERTICAL_DRIFT = 42;
 
+const initializedElements =
+  new WeakSet();
+
 function getPoint(event) {
   if (event.touches?.length) {
     return event.touches[0];
@@ -106,6 +109,18 @@ function attachSwipe(
   element,
   book
 ) {
+  if (
+    initializedElements.has(
+      element
+    )
+  ) {
+    return;
+  }
+  
+  initializedElements.add(
+    element
+  );
+  
   let startX = 0;
 
   let startY = 0;
@@ -113,6 +128,8 @@ function attachSwipe(
   let currentX = 0;
 
   let active = false;
+
+  let frame = null;
 
   element.style.touchAction =
     "pan-y";
@@ -165,9 +182,17 @@ function attachSwipe(
 
       currentX = deltaX;
 
-      applyTransform(
-        element,
-        deltaX
+      if (frame) {
+        cancelAnimationFrame(frame);
+      }
+      
+      frame = requestAnimationFrame(
+        () => {
+          applyTransform(
+            element,
+            deltaX
+          );
+        }
       );
     },
     {
