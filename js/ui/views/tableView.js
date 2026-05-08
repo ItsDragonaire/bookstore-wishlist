@@ -125,7 +125,10 @@ export function renderTableView({
 }) {
   if (!books.length) {
     container.innerHTML = `
-      <section class="empty-state">
+      <section
+        class="empty-state"
+        role="status"
+      >
         <h2 class="empty-state__title">
           no matching books
         </h2>
@@ -147,16 +150,19 @@ export function renderTableView({
 
   wrapper.innerHTML = `
     <div class="table-scroll">
-      <table class="book-table">
+      <table
+        class="book-table"
+        aria-label="book collection"
+      >
         <thead>
           <tr>
-            <th></th>
-            <th>book</th>
-            <th>publisher</th>
-            <th>status</th>
-            <th>priority</th>
-            <th>qty</th>
-            <th></th>
+            <th scope="col"></th>
+            <th scope="col">book</th>
+            <th scope="col">publisher</th>
+            <th scope="col">status</th>
+            <th scope="col">priority</th>
+            <th scope="col">qty</th>
+            <th scope="col"></th>
           </tr>
         </thead>
 
