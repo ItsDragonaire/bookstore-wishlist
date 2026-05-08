@@ -183,6 +183,32 @@ export function renderTableView({
   });
 
   tbody.append(fragment);
+  
+if (isPrint) {
+  const summary =
+    document.createElement(
+      "section"
+    );
 
+  summary.className =
+    "print-summary";
+
+  summary.innerHTML = `
+    <div>
+      total books: ${books.length}
+    </div>
+
+    <div>
+      total quantity:
+      ${books.reduce(
+        (sum, book) =>
+          sum + book.quantity,
+        0
+      )}
+    </div>
+  `;
+
+  container.prepend(summary);
+}
   container.append(wrapper);
 }
