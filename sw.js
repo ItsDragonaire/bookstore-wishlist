@@ -7,6 +7,8 @@ const APP_SHELL_CACHE =
 const API_CACHE =
   `${CACHE_VERSION}-api`;
 
+const MAX_API_CACHE_ITEMS = 40;
+
 const APP_SHELL_FILES = [
   "./",
   "./index.html",
@@ -53,6 +55,34 @@ const APP_SHELL_FILES = [
   "./js/ui/interactions/keyboard.js",
   "./js/ui/interactions/swipeActions.js"
 ];
+
+async function trimCache(
+  cacheName,
+  maxItems
+) {
+  const cache =
+    await caches.open(
+      cacheName
+    );
+
+  const keys =
+    await cache.keys();
+
+  if (
+    keys.length <= maxItems
+  ) {
+    return;
+  }
+
+  await cache.delete(
+    keys[0]
+  );
+
+  return trimCache(
+    cacheName,
+    maxItems
+  );
+}
 
 async function cacheAppShell() {
   const cache =
@@ -149,6 +179,10 @@ async function networkFirst(
       cache.put(
         request,
         response.clone()
+      );
+      trimCache(
+        API_CACHE,
+        MAX_API_CACHE_ITEMS
       );
     }
 
