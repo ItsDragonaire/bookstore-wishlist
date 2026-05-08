@@ -1,81 +1,132 @@
 <!DOCTYPE html>
-      <div class="input-grid">
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
 
-        <div class="field-group">
-          <label for="isbnInput">isbn</label>
-          <input id="isbnInput" type="text" placeholder="9780143127741" />
-        </div>
+  <title>bookstore wishlist</title>
 
-        <div class="field-group">
-          <label for="titleInput">title</label>
-          <input id="titleInput" type="text" placeholder="the brothers karamazov" />
-        </div>
+  <meta
+    name="description"
+    content="minimalist bookstore wishlist and ordering manager"
+  />
 
-        <div class="field-group">
-          <label for="authorInput">author</label>
-          <input id="authorInput" type="text" placeholder="fyodor dostoevsky" />
-        </div>
+  <meta name="theme-color" content="#111111" />
 
-        <div class="button-group">
-          <button id="addBookBtn">add book</button>
-          <button id="scanBtn" class="ghost-btn">scan barcode</button>
-        </div>
+  <link rel="manifest" href="./manifest.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/layout.css" />
+  <link rel="stylesheet" href="./css/themes.css" />
+</head>
+
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar__identity">
+        <p class="eyebrow">collection</p>
+        <h1 class="app-title">bookstore wishlist</h1>
       </div>
 
-      <div class="toolbar-row">
-        <input id="searchInput" type="search" placeholder="search books" />
-
-        <select id="sortSelect">
-          <option value="priority">priority</option>
-          <option value="title">title</option>
-          <option value="author">author</option>
-          <option value="year">year</option>
-        </select>
-
-        <button id="exportCsvBtn" class="ghost-btn">csv</button>
-        <button id="exportJsonBtn" class="ghost-btn">json</button>
-        <button id="importJsonBtn" class="ghost-btn">import</button>
-
-        <input id="jsonFileInput" type="file" accept="application/json" hidden />
+      <div class="topbar__actions">
+        <button
+          class="icon-button"
+          id="theme-toggle"
+          type="button"
+          aria-label="toggle theme"
+        >
+          <span aria-hidden="true">◐</span>
+        </button>
       </div>
-    </section>
+    </header>
 
-    <section class="scanner-panel card hidden" id="scannerPanel">
-      <div class="scanner-header">
-        <h2>barcode scanner</h2>
-        <button id="closeScannerBtn" class="ghost-btn">close</button>
-      </div>
+    <main class="main-layout">
+      <section class="toolbar" aria-label="toolbar">
+        <div class="toolbar__search">
+          <label class="sr-only" for="search-input">search books</label>
 
-      <div id="scannerReader"></div>
-    </section>
+          <input
+            id="search-input"
+            class="search-input"
+            type="search"
+            placeholder="search title, author, isbn"
+            autocomplete="off"
+          />
+        </div>
 
-    <main>
-      <section class="book-list card">
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th></th>
-                <th>book</th>
-                <th>author</th>
-                <th>publisher</th>
-                <th>isbn</th>
-                <th>year</th>
-                <th>pages</th>
-                <th>format</th>
-                <th>qty</th>
-                <th>priority</th>
-                <th>notes</th>
-                <th>actions</th>
-              </tr>
-            </thead>
-
-            <tbody id="bookTableBody"></tbody>
-          </table>
+        <div class="toolbar__actions">
+          <button
+            class="button button--primary"
+            id="add-book-button"
+            type="button"
+          >
+            add book
+          </button>
         </div>
       </section>
-    </main>
 
+      <section class="content-panel">
+        <div class="collection-header">
+          <div>
+            <h2 class="section-title">library</h2>
+            <p class="section-meta" id="collection-meta">
+              0 books
+            </p>
+          </div>
+
+          <div class="view-switcher" role="tablist" aria-label="view mode">
+            <button
+              class="view-switcher__button is-active"
+              type="button"
+              data-view="table"
+            >
+              table
+            </button>
+
+            <button
+              class="view-switcher__button"
+              type="button"
+              data-view="card"
+            >
+              cards
+            </button>
+          </div>
+        </div>
+
+        <section
+          id="view-root"
+          class="view-root"
+          aria-live="polite"
+        ></section>
+      </section>
+    </main>
   </div>
+
+  <template id="book-row-template">
+    <article class="book-row">
+      <div class="book-row__main">
+        <h3 class="book-title"></h3>
+        <p class="book-author"></p>
+      </div>
+
+      <div class="book-row__meta">
+        <span class="book-status"></span>
+        <span class="book-priority"></span>
+      </div>
+    </article>
+  </template>
+
+  <script type="module" src="./js/app.js"></script>
 </body>
 </html>
