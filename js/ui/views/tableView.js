@@ -162,7 +162,7 @@ export function renderTableView({
           </tr>
         </thead>
 
-        <tbody></tbody>
+        <tbody id="sortable-table-body"></tbody>
       </table>
     </div>
   `;
