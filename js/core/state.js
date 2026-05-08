@@ -1,19 +1,24 @@
-import { loadState, saveState } from "./storage.js";
+import {
+  loadState,
+  saveState
+} from "./storage.js";
+
+import { emit } from "./events.js";
 
 const state = loadState();
 
 const listeners = new Set();
 
-function emit() {
-  for (const listener of listeners) {
-    listener(getState());
-  }
-}
+function notify() {
+  const snapshot = getState();
 
-function persist() {
   saveState(state);
 
-  emit();
+  emit("state:updated", snapshot);
+
+  for (const listener of listeners) {
+    listener(snapshot);
+  }
 }
 
 export function getState() {
@@ -35,8 +40,7 @@ export function addBook(bookData) {
     createdAt: Date.now(),
     updatedAt: Date.now(),
 
-    title: bookData.title || "untitled",
-
+    title: bookData.title || "",
     subtitle:
       bookData.subtitle || "",
 
@@ -79,14 +83,19 @@ export function addBook(bookData) {
     status:
       bookData.status || "wishlist",
 
+    tags: bookData.tags || [],
+
     notes:
       bookData.notes || ""
   });
 
-  persist();
+  notify();
 }
 
-export function updateBook(id, updates) {
+export function updateBook(
+  id,
+  updates
+) {
   const target = state.books.find(
     (book) => book.id === id
   );
@@ -99,7 +108,7 @@ export function updateBook(id, updates) {
     updatedAt: Date.now()
   });
 
-  persist();
+  notify();
 }
 
 export function deleteBook(id) {
@@ -113,23 +122,43 @@ export function deleteBook(id) {
 
   state.books.splice(index, 1);
 
-  persist();
-}
-
-export function updateSearch(query) {
-  state.ui.searchQuery = query;
-
-  persist();
+  notify();
 }
 
 export function setTheme(theme) {
   state.ui.theme = theme;
 
-  persist();
+  notify();
 }
 
 export function setView(view) {
   state.ui.currentView = view;
 
-  persist();
+  notify();
+}
+
+export function updateFilters(
+  filters = {}
+) {
+  state.ui.searchQuery =
+    filters.searchQuery ??
+    state.ui.searchQuery;
+
+  state.ui.filters = {
+    ...state.ui.filters,
+    ...filters
+  };
+
+  notify();
+}
+
+export function updateSort(
+  partialSort = {}
+) {
+  state.ui.sort = {
+    ...state.ui.sort,
+    ...partialSort
+  };
+
+  notify();
 }
