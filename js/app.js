@@ -7,6 +7,8 @@ import {
 
 import { initializeToolbar } from "./ui/components/toolbar.js";
 
+import { notify } from "./ui/components/notifications.js";
+
 import { openModal } from "./ui/components/modal.js";
 
 import { createBookForm } from "./ui/components/bookForm.js";
@@ -346,6 +348,17 @@ window.addEventListener(
   "afterprint",
   () => {
     deactivatePrintMode();
+
+    notify({
+      title:
+        "print complete",
+
+      text:
+        "returned to interactive view",
+
+      type:
+        "success"
+    });
   }
 );
 
