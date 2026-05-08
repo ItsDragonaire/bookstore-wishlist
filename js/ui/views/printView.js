@@ -178,6 +178,22 @@ export function renderPrintView({
 }) {
   container.innerHTML = "";
 
+  if (!books.length) {
+    container.innerHTML = `
+      <section class="empty-state">
+        <h2 class="empty-state__title">
+          no books available for printing
+        </h2>
+  
+        <p class="empty-state__text">
+          add books before generating an order sheet
+        </p>
+      </section>
+    `;
+  
+    return;
+  }
+
   const wrapper =
     document.createElement(
       "section"
