@@ -237,6 +237,15 @@ function createExportPanel() {
       }
     );
 
+  wrapper
+    .querySelectorAll(
+      ".button"
+    )
+    .forEach((button) => {
+      button.style.whiteSpace =
+        "nowrap";
+    });
+
   return wrapper;
 }
 
