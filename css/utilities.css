@@ -1,0 +1,29 @@
+.hidden {
+  display: none !important;
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.surface-blur {
+  backdrop-filter: blur(12px);
+}
+
+.scroll-lock {
+  overflow: hidden;
+}
+
+.fade-in {
+  animation: fade-in 160ms ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
