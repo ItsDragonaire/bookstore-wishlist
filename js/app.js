@@ -14,19 +14,28 @@ import { renderTableView } from "./ui/views/tableView.js";
 
 import { renderCardView } from "./ui/views/cardView.js";
 
-const root = document.querySelector("#view-root");
+const root =
+  document.querySelector(
+    "#view-root"
+  );
 
 const collectionMeta =
-  document.querySelector("#collection-meta");
+  document.querySelector(
+    "#collection-meta"
+  );
 
 const addBookButton =
-  document.querySelector("#add-book-button");
+  document.querySelector(
+    "#add-book-button"
+  );
 
 const themeToggle =
-  document.querySelector("#theme-toggle");
+  document.querySelector(
+    "#theme-toggle"
+  );
 
 function applyTheme(theme) {
-  const resolvedTheme =
+  const resolved =
     theme === "system"
       ? window.matchMedia(
           "(prefers-color-scheme: dark)"
@@ -36,14 +45,25 @@ function applyTheme(theme) {
       : theme;
 
   document.documentElement.dataset.theme =
-    resolvedTheme;
+    resolved;
 }
 
-function getFilteredBooks(state) {
-  const query =
-    state.ui.searchQuery.toLowerCase();
+function normalize(value) {
+  return String(value || "")
+    .toLowerCase()
+    .trim();
+}
 
-  return state.books.filter((book) => {
+function filterBooks(
+  books,
+  state
+) {
+  const {
+    searchQuery,
+    filters
+  } = state.ui;
+
+  return books.filter((book) => {
     const searchable = [
       book.title,
       book.subtitle,
@@ -52,13 +72,88 @@ function getFilteredBooks(state) {
       book.isbn10,
       book.isbn13,
       book.notes,
-      book.series
+      ...(book.tags || [])
     ]
       .join(" ")
       .toLowerCase();
 
-    return searchable.includes(query);
+    const matchesSearch =
+      !searchQuery ||
+      searchable.includes(
+        normalize(searchQuery)
+      );
+
+    const matchesStatus =
+      !filters.status ||
+      book.status ===
+        filters.status;
+
+    const matchesPriority =
+      !filters.priority ||
+      book.priority ===
+        filters.priority;
+
+    const matchesPublisher =
+      !filters.publisher ||
+      normalize(
+        book.publisher
+      ).includes(
+        normalize(
+          filters.publisher
+        )
+      );
+
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesPriority &&
+      matchesPublisher
+    );
   });
+}
+
+function sortBooks(
+  books,
+  state
+) {
+  const {
+    by,
+    direction
+  } = state.ui.sort;
+
+  const sorted = [...books].sort(
+    (a, b) => {
+      let first = a[by];
+      let second = b[by];
+
+      if (by === "author") {
+        first =
+          a.authors?.[0] || "";
+
+        second =
+          b.authors?.[0] || "";
+      }
+
+      first = normalize(first);
+      second = normalize(second);
+
+      if (first < second) {
+        return direction === "asc"
+          ? -1
+          : 1;
+      }
+
+      if (first > second) {
+        return direction === "asc"
+          ? 1
+          : -1;
+      }
+
+      return 0;
+    }
+  );
+
+  return sorted;
 }
 
 function render(state) {
@@ -66,14 +161,26 @@ function render(state) {
 
   applyTheme(state.ui.theme);
 
-  const books = getFilteredBooks(state);
+  const filtered =
+    filterBooks(
+      state.books,
+      state
+    );
+
+  const books =
+    sortBooks(filtered, state);
 
   collectionMeta.textContent =
     `${books.length} book${
-      books.length === 1 ? "" : "s"
+      books.length === 1
+        ? ""
+        : "s"
     }`;
 
-  if (state.ui.currentView === "card") {
+  if (
+    state.ui.currentView ===
+    "card"
+  ) {
     renderCardView({
       container: root,
       books,
@@ -90,38 +197,53 @@ function render(state) {
 
 initializeToolbar();
 
-themeToggle.addEventListener("click", () => {
-  const current = getState().ui.theme;
+themeToggle.addEventListener(
+  "click",
+  () => {
+    const current =
+      getState().ui.theme;
 
-  const next =
-    current === "light"
-      ? "dark"
-      : current === "dark"
-      ? "system"
-      : "light";
+    const next =
+      current === "light"
+        ? "dark"
+        : current === "dark"
+        ? "system"
+        : "light";
 
-  setTheme(next);
-});
+    setTheme(next);
+  }
+);
 
-addBookButton.addEventListener("click", () => {
-  openModal({
-    title: "add book",
+addBookButton.addEventListener(
+  "click",
+  () => {
+    openModal({
+      title: "add book",
 
-    description:
-      "add books manually, via isbn, or barcode scan",
+      description:
+        "add books manually, by isbn, or barcode",
 
-    content: createBookForm({
-      mode: "create",
-      state: getState()
-    })
-  });
-});
+      content:
+        createBookForm({
+          mode: "create",
+          state: getState()
+        })
+    });
+  }
+);
 
 window
-  .matchMedia("(prefers-color-scheme: dark)")
-  .addEventListener("change", () => {
-    applyTheme(getState().ui.theme);
-  });
+  .matchMedia(
+    "(prefers-color-scheme: dark)"
+  )
+  .addEventListener(
+    "change",
+    () => {
+      applyTheme(
+        getState().ui.theme
+      );
+    }
+  );
 
 subscribe(render);
 
