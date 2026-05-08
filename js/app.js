@@ -391,7 +391,7 @@ initializeToolbar();
 
 initializeKeyboardShortcuts();
 
-registerServiceWorker();
+await registerServiceWorker();
 
 initializeInstallPrompt();
 
