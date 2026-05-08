@@ -1,28 +1,10 @@
 import {
-  DEFAULT_STATE,
-  STORAGE_KEY,
-  validateState
+  createDefaultState,
+  validateStateShape
 } from "./schema.js";
 
-export function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-
-    if (!raw) {
-      return structuredClone(DEFAULT_STATE);
-    }
-
-    const parsed = JSON.parse(raw);
-
-    return validateState(parsed);
-  } catch (error) {
-    console.error("failed to load state", error);
-
-    localStorage.removeItem(STORAGE_KEY);
-
-    return structuredClone(DEFAULT_STATE);
-  }
-}
+const STORAGE_KEY =
+  "bookstore-wishlist";
 
 let pendingState = null;
 
@@ -38,7 +20,9 @@ function commitSave() {
   try {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify(pendingState)
+      JSON.stringify(
+        pendingState
+      )
     );
   } catch (error) {
     console.error(
@@ -52,7 +36,9 @@ function commitSave() {
   writeScheduled = false;
 }
 
-export function saveState(state) {
+export function saveState(
+  state
+) {
   pendingState = state;
 
   if (writeScheduled) {
@@ -64,7 +50,76 @@ export function saveState(state) {
   const schedule =
     window.requestIdleCallback ||
     ((callback) =>
-      window.setTimeout(callback, 120));
+      setTimeout(
+        callback,
+        120
+      ));
 
   schedule(commitSave);
+}
+
+export function clearStorage() {
+  localStorage.removeItem(
+    STORAGE_KEY
+  );
+}
+
+export function loadState() {
+  const defaults =
+    createDefaultState();
+
+  let parsed;
+
+  try {
+    const raw =
+      localStorage.getItem(
+        STORAGE_KEY
+      );
+
+    if (!raw) {
+      return defaults;
+    }
+
+    parsed = JSON.parse(raw);
+  } catch (error) {
+    console.error(
+      "storage parse failed",
+      error
+    );
+
+    clearStorage();
+
+    return defaults;
+  }
+
+  const valid =
+    validateStateShape(
+      parsed
+    );
+
+  if (!valid) {
+    console.warn(
+      "invalid storage schema"
+    );
+
+    clearStorage();
+
+    return defaults;
+  }
+
+  return {
+    ...defaults,
+    ...parsed,
+
+    books: Array.isArray(
+      parsed.books
+    )
+      ? parsed.books
+      : [],
+
+    ui: {
+      ...defaults.ui,
+      ...(parsed.ui || {})
+    }
+  };
 }
