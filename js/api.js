@@ -66,4 +66,18 @@ async function fetchGoogleBooks({ isbn, title, author }) {
     const info = data.items[0].volumeInfo;
 
     return {
+      title: info.title || '',
+      author: info.authors?.join(', ') || '',
+      publisher: info.publisher || '',
+      isbn13: extractISBN(info.industryIdentifiers),
+      publishYear: info.publishedDate?.slice(0, 4) || '',
+      pages: info.pageCount || '',
+      format: info.printType || '',
+      cover: info.imageLinks?.thumbnail || '',
+    };
+  } catch {
+    return null;
+  }
+}
+
 }
