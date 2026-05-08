@@ -49,7 +49,14 @@ export function emit(
 
   handlers.forEach(
     (handler) => {
-      handler(payload);
+      try {
+        handler(payload);
+      } catch (error) {
+        console.error(
+          `[events] ${eventName}`,
+          error
+        );
+      }
     }
   );
 }
