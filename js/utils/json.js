@@ -1,6 +1,6 @@
 import {
-  createDefaultState,
-  validateStateShape
+  DEFAULT_STATE,
+  validateState
 } from "../core/schema.js";
 
 function downloadFile({
@@ -143,7 +143,9 @@ function normalizeState(
   imported
 ) {
   const defaults =
-    createDefaultState();
+    structuredClone(
+      DEFAULT_STATE
+    );
 
   return {
     ...defaults,
@@ -226,16 +228,13 @@ export async function importJsonBackup(
       candidate
     );
 
-  const valid =
-    validateStateShape(
+  try {
+    return validateState(
       normalized
     );
-
-  if (!valid) {
+  } catch {
     throw new Error(
       "backup structure unsupported or corrupted"
     );
   }
-
-  return normalized;
 }
