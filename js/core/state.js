@@ -125,7 +125,7 @@ export function addBook(bookData) {
       bookData.tags || [],
 
     notes:
-      bookData.notes || ""
+      bookData.notes || "",
 
     searchIndex: ""
   };
