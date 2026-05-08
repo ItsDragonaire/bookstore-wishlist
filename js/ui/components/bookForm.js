@@ -437,8 +437,59 @@ export function createBookForm({
     (event) => {
       event.preventDefault();
 
+      const title =
+        form.title.value;
+      
+      const isbn13 =
+        form.isbn13.value.trim();
+      
+      const normalizedTitle =
+        title
+          .trim()
+          .toLowerCase();
+      
+      const duplicate =
+        state.books.find(
+          (existing) => {
+            if (
+              mode === "edit" &&
+              existing.id === book?.id
+            ) {
+              return false;
+            }
+      
+            const sameTitle =
+              existing.title
+                ?.trim()
+                ?.toLowerCase() ===
+              normalizedTitle;
+      
+            const sameIsbn =
+              isbn13 &&
+              existing.isbn13 ===
+                isbn13;
+      
+            return (
+              sameTitle ||
+              sameIsbn
+            );
+          }
+        );
+      
+      if (duplicate) {
+        notify({
+          title:
+            "duplicate detected",
+      
+          text:
+            "matching title or isbn already exists"
+        });
+      
+        return;
+      }
+
       const payload = {
-        title: form.title.value.trim(),
+        title: title.trim(),
 
         subtitle:
           form.subtitle.value.trim(),
