@@ -41,6 +41,9 @@ export function createFilters() {
         type="search"
         placeholder="search title, author, isbn, publisher"
         value="${state.ui.searchQuery}"
+        aria-label="search books"
+        autocomplete="off"
+        spellcheck="false"
       />
 
       <select
