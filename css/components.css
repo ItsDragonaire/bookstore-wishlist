@@ -188,18 +188,16 @@
 }
 
 .book-table th {
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 
-  color: var(--color-text-muted);
-
-  border-bottom: 1px solid var(--color-border);
+  color:
+    var(--color-text-muted);
 }
 
 .book-table td {
-  border-top: 1px solid var(--color-border);
+  vertical-align: top;
 }
 
 .book-table tr:first-child td {
@@ -224,6 +222,17 @@
   margin: 0.2rem 0 0;
   color: var(--color-text-muted);
   font-size: 0.86rem;
+}
+
+.book-card__title,
+.book-meta-title {
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.book-card__author,
+.book-meta-author {
+  line-height: 1.45;
 }
 
 .table-actions,
@@ -251,25 +260,36 @@
 }
 
 .book-card {
-  display: grid;
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+
+  gap: var(--space-3);
 
   padding: 1rem;
 
   border-radius: var(--radius-lg);
 
-  border: 1px solid var(--color-border);
+  border: 1px solid
+    var(--color-border);
 
-  background: var(--color-surface);
+  background:
+    var(--color-surface);
+
+  box-shadow:
+    var(--shadow-soft);
 
   transition:
-    transform var(--transition),
-    border-color var(--transition);
+    border-color var(--transition-base),
+    transform var(--transition-base),
+    box-shadow var(--transition-base);
 }
 
 .book-card:hover {
-  transform: translateY(-1px);
-  border-color: var(--color-border-strong);
+  border-color:
+    var(--color-border-strong);
+
+  transform:
+    translateY(-2px);
 }
 
 .book-card__top {
@@ -316,25 +336,27 @@
 }
 
 .empty-state {
-  display: grid;
-  gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
-  padding: 3rem 1.5rem;
+  min-height: 40vh;
 
   text-align: center;
 
-  border-radius: var(--radius-lg);
+  gap: 0.5rem;
 
-  border: 1px dashed var(--color-border);
-
-  background: var(--color-surface);
+  color:
+    var(--color-text-muted);
 }
 
 .empty-state__title {
-  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
 
-  font-family: var(--font-serif);
-  font-size: 1.4rem;
+  color:
+    var(--color-text);
 }
 
 .empty-state__text {
@@ -355,17 +377,21 @@
 }
 
 .notification {
-  padding: 0.9rem 1rem;
+  transform:
+    translateY(8px);
 
-  border-radius: var(--radius-md);
+  opacity: 0;
 
-  border: 1px solid var(--color-border);
+  transition:
+    transform var(--transition-fast),
+    opacity var(--transition-fast);
+}
 
-  background: var(--color-surface);
+.notification.is-visible {
+  transform:
+    translateY(0);
 
-  box-shadow: var(--shadow-sm);
-
-  animation: notification-in 180ms ease;
+  opacity: 1;
 }
 
 .notification__title {
@@ -392,6 +418,29 @@
   }
 }
 
+.button,
+.action-button,
+.icon-button {
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+.button:hover,
+.action-button:hover,
+.icon-button:hover {
+  transform: translateY(-1px);
+}
+
+.button:active,
+.action-button:active,
+.icon-button:active {
+  transform: translateY(0);
+}
+
 @media (min-width: 720px) {
   .modal-root {
     align-items: center;
@@ -414,6 +463,11 @@
   .card-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+.is-loading {
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 :focus-visible {
