@@ -236,7 +236,7 @@ export function renderPrintView({
     "print-footer";
 
   footer.textContent =
-    `generated ${new Date().toLocaleDateString()}`;
+    `generated ${new Date().toLocaleDateString()} · bookstore wishlist`;
 
   wrapper.append(footer);
 
