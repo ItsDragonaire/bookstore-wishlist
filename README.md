@@ -1,3 +1,7 @@
+#[UNDER HEAVY DEVELOPEMENT]
+
+===
+
 # bookstore wishlist manager
 
 minimal bookstore wishlist and printable order management app.
