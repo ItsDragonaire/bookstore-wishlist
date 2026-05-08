@@ -19,6 +19,8 @@ import {
   initializeDragDrop
 } from "./ui/interactions/dragdrop.js";
 
+import { initializeKeyboardShortcuts } from "./ui/interactions/keyboard.js";
+
 const root =
   document.querySelector(
     "#view-root"
@@ -225,6 +227,8 @@ async function render(state) {
 }
 
 initializeToolbar();
+
+initializeKeyboardShortcuts();
 
 themeToggle.addEventListener(
   "click",
