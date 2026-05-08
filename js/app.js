@@ -14,6 +14,11 @@ import { renderTableView } from "./ui/views/tableView.js";
 
 import { renderCardView } from "./ui/views/cardView.js";
 
+import {
+  destroyDragDrop,
+  initializeDragDrop
+} from "./ui/interactions/dragdrop.js";
+
 const root =
   document.querySelector(
     "#view-root"
@@ -156,7 +161,27 @@ function sortBooks(
   return sorted;
 }
 
-function render(state) {
+async function mountDragDrop(
+  view
+) {
+  destroyDragDrop();
+
+  if (view === "card") {
+    await initializeDragDrop({
+      containerSelector:
+        "#sortable-card-grid"
+    });
+
+    return;
+  }
+
+  await initializeDragDrop({
+    containerSelector:
+      "#sortable-table-body"
+  });
+}
+
+async function render(state) {
   root.innerHTML = "";
 
   applyTheme(state.ui.theme);
@@ -193,6 +218,10 @@ function render(state) {
       state
     });
   }
+
+  await mountDragDrop(
+    state.ui.currentView
+  );
 }
 
 initializeToolbar();
