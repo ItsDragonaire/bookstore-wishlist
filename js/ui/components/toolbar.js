@@ -1,5 +1,6 @@
 import {
   getState,
+  setPrintMode,
   setView
 } from "../../core/state.js";
 
@@ -35,11 +36,15 @@ export function initializeToolbar() {
     "print";
 
   printButton.addEventListener(
-    "click",
-    () => {
+  "click",
+  () => {
+    setPrintMode(true);
+
+    requestAnimationFrame(() => {
       window.print();
-    }
-  );
+    });
+  }
+);
 
   toolbar
     .querySelector(
