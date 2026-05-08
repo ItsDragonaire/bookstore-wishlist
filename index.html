@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bookstore wishlist</title>
+
+  <link rel="stylesheet" href="styles/main.css" />
+
+  <script defer src="libs/html5-qrcode.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+
+    <header class="topbar">
+      <div>
+        <h1>bookstore wishlist</h1>
+        <p>minimal printable order manager</p>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="themeToggle" class="ghost-btn">theme</button>
+        <button id="printBtn">print</button>
+      </div>
+    </header>
+
+    <section class="controls-panel card">
+      <div class="input-grid">
+
+        <div class="field-group">
+          <label for="isbnInput">isbn</label>
+          <input id="isbnInput" type="text" placeholder="9780143127741" />
+        </div>
+
+        <div class="field-group">
+          <label for="titleInput">title</label>
+          <input id="titleInput" type="text" placeholder="the brothers karamazov" />
+        </div>
+
+        <div class="field-group">
+          <label for="authorInput">author</label>
+          <input id="authorInput" type="text" placeholder="fyodor dostoevsky" />
+        </div>
+
+        <div class="button-group">
+          <button id="addBookBtn">add book</button>
+          <button id="scanBtn" class="ghost-btn">scan barcode</button>
+        </div>
+      </div>
+
+      <div class="toolbar-row">
+        <input id="searchInput" type="search" placeholder="search books" />
+
+        <select id="sortSelect">
+          <option value="priority">priority</option>
+</html>
