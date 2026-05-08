@@ -1,0 +1,174 @@
+@media print {
+  :root {
+    --color-bg: #ffffff;
+    --color-surface: #ffffff;
+    --color-surface-elevated: #ffffff;
+
+    --color-text: #000000;
+    --color-text-muted: #444444;
+
+    --color-border: #d0d0d0;
+    --color-border-strong: #999999;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+
+    font-size: 11pt;
+    line-height: 1.35;
+
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .topbar,
+  .toolbar,
+  .view-switcher,
+  .notification-stack,
+  .modal-root,
+  .action-button,
+  .icon-button,
+  .selection-checkbox,
+  .card-actions,
+  .table-actions,
+  .button {
+    display: none !important;
+  }
+
+  .app-shell {
+    width: 100%;
+    max-width: none;
+
+    padding: 0;
+    margin: 0;
+  }
+
+  .content-panel {
+    gap: 0.5rem;
+  }
+
+  .collection-header {
+    padding-bottom: 0.5rem;
+
+    border-bottom: 1px solid #d0d0d0;
+  }
+
+  .section-title {
+    font-size: 18pt;
+  }
+
+  .section-meta {
+    font-size: 10pt;
+  }
+
+  .table-view {
+    border: none;
+    border-radius: 0;
+
+    overflow: visible;
+  }
+
+  .table-scroll {
+    overflow: visible;
+  }
+
+  .book-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    page-break-inside: auto;
+  }
+
+  .book-table thead {
+    display: table-header-group;
+  }
+
+  .book-table tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  .book-table th,
+  .book-table td {
+    padding: 0.45rem 0.5rem;
+
+    border: 1px solid #d0d0d0;
+
+    font-size: 9.5pt;
+  }
+
+  .book-meta-title,
+  .book-card__title {
+    color: #000000 !important;
+
+    font-size: 10pt;
+    font-weight: 700;
+  }
+
+  .book-meta-author,
+  .book-author {
+    color: #444444 !important;
+
+    font-size: 8.8pt;
+  }
+
+  .card-grid {
+    display: block;
+  }
+
+  .book-card {
+    break-inside: avoid;
+
+    margin-bottom: 0.7rem;
+
+    border: 1px solid #d0d0d0;
+
+    box-shadow: none;
+
+    page-break-inside: avoid;
+  }
+
+  .pill {
+    border: 1px solid #cfcfcf;
+
+    background: transparent;
+
+    color: #000000;
+  }
+
+  .print-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 1rem;
+
+    font-size: 10pt;
+  }
+
+  .print-footer {
+    margin-top: 1rem;
+
+    font-size: 8.5pt;
+    color: #555555;
+
+    text-align: right;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  @page {
+    size: auto;
+    margin: 12mm;
+  }
+}
