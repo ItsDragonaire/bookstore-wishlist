@@ -1,5 +1,6 @@
 import {
   getState,
+  setPrintMode,
   setTheme,
   subscribe
 } from "./core/state.js";
@@ -13,6 +14,8 @@ import { createBookForm } from "./ui/components/bookForm.js";
 import { renderTableView } from "./ui/views/tableView.js";
 
 import { renderCardView } from "./ui/views/cardView.js";
+
+import { renderPrintView } from "./ui/views/printView.js";
 
 import {
   destroyDragDrop,
@@ -179,6 +182,8 @@ function activatePrintMode() {
     "data-printing",
     "true"
   );
+
+  setPrintMode(true);
 }
 
 function deactivatePrintMode() {
@@ -189,6 +194,8 @@ function deactivatePrintMode() {
   appShell?.removeAttribute(
     "data-printing"
   );
+
+  setPrintMode(false);
 }
 
 async function mountInteractions(
@@ -196,9 +203,7 @@ async function mountInteractions(
   books
 ) {
   if (
-    document.body.classList.contains(
-      "is-printing"
-    )
+    state.ui.printMode
   ) {
     return;
   }
@@ -258,6 +263,16 @@ async function render(state) {
         : "s"
     }`;
 
+  if (state.ui.printMode) {
+    renderPrintView({
+      container: root,
+      books,
+      state
+    });
+
+    return;
+  }
+
   if (
     state.ui.currentView ===
     "card"
@@ -265,21 +280,13 @@ async function render(state) {
     renderCardView({
       container: root,
       books,
-      state,
-      isPrint:
-        document.body.classList.contains(
-          "is-printing"
-        )
+      state
     });
   } else {
     renderTableView({
       container: root,
       books,
-      state,
-      isPrint:
-        document.body.classList.contains(
-          "is-printing"
-        )
+      state
     });
   }
 
@@ -332,8 +339,6 @@ window.addEventListener(
   "beforeprint",
   () => {
     activatePrintMode();
-
-    render(getState());
   }
 );
 
@@ -341,8 +346,6 @@ window.addEventListener(
   "afterprint",
   () => {
     deactivatePrintMode();
-
-    render(getState());
   }
 );
 
