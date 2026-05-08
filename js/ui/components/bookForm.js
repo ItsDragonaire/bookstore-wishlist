@@ -4,7 +4,11 @@ import {
   updateBook
 } from "../../core/state.js";
 
-import { closeModal } from "./modal.js";
+import { fetchBookMetadataByISBN } from "../../api/metadata.js";
+
+import { openModal, closeModal } from "./modal.js";
+
+import { createScanner } from "./scanner.js";
 
 import { notify } from "./notifications.js";
 
@@ -15,112 +19,239 @@ function normalizeAuthors(value) {
     .filter(Boolean);
 }
 
-function detectDuplicate({
-  title,
-  isbn13,
-  existingBooks,
-  currentId
-}) {
-  return existingBooks.find((book) => {
-    if (book.id === currentId) {
-      return false;
-    }
+function populateForm(form, metadata) {
+  const mapping = {
+    title: metadata.title,
+    subtitle: metadata.subtitle,
+    authors:
+      metadata.authors?.join(", "),
+    publisher: metadata.publisher,
+    isbn10: metadata.isbn10,
+    isbn13: metadata.isbn13,
+    publishYear:
+      metadata.publishYear,
+    pageCount:
+      metadata.pageCount,
+    language: metadata.language,
+    format: metadata.format,
+    series: metadata.series
+  };
 
-    if (
-      isbn13 &&
-      book.isbn13 &&
-      isbn13 === book.isbn13
-    ) {
-      return true;
+  Object.entries(mapping).forEach(
+    ([key, value]) => {
+      if (
+        form[key] &&
+        value !== undefined &&
+        value !== null
+      ) {
+        form[key].value = value;
+      }
     }
-
-    return (
-      book.title.toLowerCase().trim() ===
-      title.toLowerCase().trim()
-    );
-  });
+  );
 }
 
 export function createBookForm({
   mode = "create",
-  book = null,
-  state
+  state,
+  book = null
 }) {
   const form = document.createElement("form");
 
   form.className = "form-grid";
 
   form.innerHTML = `
-    <div class="form-row">
-      <div class="form-field">
-        <label class="form-label" for="title">
-          title
-        </label>
+    <div class="table-actions">
+      <button
+        type="button"
+        class="button button--secondary"
+        id="scan-button"
+      >
+        scan isbn
+      </button>
 
-        <input
-          class="input"
-          id="title"
-          name="title"
-          required
-          value="${book?.title || ""}"
-        />
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-field">
-        <label class="form-label" for="authors">
-          authors
-        </label>
-
-        <input
-          class="input"
-          id="authors"
-          name="authors"
-          value="${book?.authors?.join(", ") || ""}"
-        />
-      </div>
+      <button
+        type="button"
+        class="button button--secondary"
+        id="fetch-button"
+      >
+        fetch metadata
+      </button>
     </div>
 
     <div class="form-row form-row--split">
       <div class="form-field">
-        <label class="form-label" for="quantity">
-          quantity
-        </label>
-
-        <input
-          class="input"
-          id="quantity"
-          name="quantity"
-          type="number"
-          min="1"
-          value="${book?.quantity || 1}"
-        />
-      </div>
-
-      <div class="form-field">
-        <label class="form-label" for="isbn13">
+        <label class="form-label">
           isbn13
         </label>
 
         <input
           class="input"
-          id="isbn13"
           name="isbn13"
           value="${book?.isbn13 || ""}"
+        />
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">
+          isbn10
+        </label>
+
+        <input
+          class="input"
+          name="isbn10"
+          value="${book?.isbn10 || ""}"
+        />
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">
+        title
+      </label>
+
+      <input
+        class="input"
+        name="title"
+        required
+        value="${book?.title || ""}"
+      />
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">
+        subtitle
+      </label>
+
+      <input
+        class="input"
+        name="subtitle"
+        value="${book?.subtitle || ""}"
+      />
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">
+        authors
+      </label>
+
+      <input
+        class="input"
+        name="authors"
+        value="${
+          book?.authors?.join(", ") || ""
+        }"
+      />
+    </div>
+
+    <div class="form-row form-row--split">
+      <div class="form-field">
+        <label class="form-label">
+          publisher
+        </label>
+
+        <input
+          class="input"
+          name="publisher"
+          value="${book?.publisher || ""}"
+        />
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">
+          publish year
+        </label>
+
+        <input
+          class="input"
+          name="publishYear"
+          value="${
+            book?.publishYear || ""
+          }"
         />
       </div>
     </div>
 
     <div class="form-row form-row--split">
       <div class="form-field">
-        <label class="form-label" for="priority">
+        <label class="form-label">
+          pages
+        </label>
+
+        <input
+          class="input"
+          type="number"
+          name="pageCount"
+          value="${
+            book?.pageCount || ""
+          }"
+        />
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">
+          quantity
+        </label>
+
+        <input
+          class="input"
+          type="number"
+          min="1"
+          name="quantity"
+          value="${
+            book?.quantity || 1
+          }"
+        />
+      </div>
+    </div>
+
+    <div class="form-row form-row--split">
+      <div class="form-field">
+        <label class="form-label">
+          language
+        </label>
+
+        <input
+          class="input"
+          name="language"
+          value="${
+            book?.language || ""
+          }"
+        />
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">
+          format
+        </label>
+
+        <input
+          class="input"
+          name="format"
+          value="${book?.format || ""}"
+        />
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">
+        series
+      </label>
+
+      <input
+        class="input"
+        name="series"
+        value="${book?.series || ""}"
+      />
+    </div>
+
+    <div class="form-row form-row--split">
+      <div class="form-field">
+        <label class="form-label">
           priority
         </label>
 
         <select
           class="select"
-          id="priority"
           name="priority"
         >
           <option value="low">low</option>
@@ -130,30 +261,36 @@ export function createBookForm({
       </div>
 
       <div class="form-field">
-        <label class="form-label" for="status">
+        <label class="form-label">
           status
         </label>
 
         <select
           class="select"
-          id="status"
           name="status"
         >
-          <option value="wishlist">wishlist</option>
-          <option value="ordered">ordered</option>
-          <option value="owned">owned</option>
+          <option value="wishlist">
+            wishlist
+          </option>
+
+          <option value="ordered">
+            ordered
+          </option>
+
+          <option value="owned">
+            owned
+          </option>
         </select>
       </div>
     </div>
 
     <div class="form-field">
-      <label class="form-label" for="notes">
+      <label class="form-label">
         notes
       </label>
 
       <textarea
         class="textarea"
-        id="notes"
         name="notes"
       >${book?.notes || ""}</textarea>
     </div>
@@ -163,14 +300,14 @@ export function createBookForm({
         ${
           mode === "edit"
             ? `
-              <button
-                type="button"
-                class="button button--danger"
-                id="delete-book"
-              >
-                delete
-              </button>
-            `
+            <button
+              type="button"
+              class="button button--danger"
+              id="delete-button"
+            >
+              delete
+            </button>
+          `
             : ""
         }
       </div>
@@ -179,7 +316,7 @@ export function createBookForm({
         <button
           type="button"
           class="button button--secondary"
-          id="cancel-book-form"
+          id="cancel-button"
         >
           cancel
         </button>
@@ -204,72 +341,175 @@ export function createBookForm({
   form.status.value =
     book?.status || "wishlist";
 
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
+  form
+    .querySelector("#scan-button")
+    .addEventListener("click", () => {
+      openModal({
+        title: "scan isbn",
 
-    const payload = {
-      title: form.title.value.trim(),
-      authors: normalizeAuthors(
-        form.authors.value
-      ),
-      quantity: Number(form.quantity.value),
-      isbn13: form.isbn13.value.trim(),
-      priority: form.priority.value,
-      status: form.status.value,
-      notes: form.notes.value.trim()
-    };
+        description:
+          "scan barcode using your device camera",
 
-    const duplicate = detectDuplicate({
-      title: payload.title,
-      isbn13: payload.isbn13,
-      existingBooks: state.books,
-      currentId: book?.id
+        content: createScanner({
+          onDetected(metadata) {
+            populateForm(form, metadata);
+
+            closeModal();
+
+            notify({
+              title:
+                "metadata autofilled",
+              text:
+                metadata.title ||
+                "book detected"
+            });
+          }
+        })
+      });
     });
 
-    if (duplicate) {
-      notify({
-        title: "possible duplicate",
-        text:
-          "matching title or isbn already exists"
-      });
+  form
+    .querySelector("#fetch-button")
+    .addEventListener(
+      "click",
+      async () => {
+        const isbn =
+          form.isbn13.value.trim() ||
+          form.isbn10.value.trim();
+
+        if (!isbn) {
+          notify({
+            title: "isbn required",
+            text:
+              "enter isbn before fetching"
+          });
+
+          return;
+        }
+
+        try {
+          const metadata =
+            await fetchBookMetadataByISBN(
+              isbn
+            );
+
+          populateForm(form, metadata);
+
+          notify({
+            title:
+              "metadata loaded",
+            text:
+              metadata.title ||
+              "book found"
+          });
+        } catch {
+          notify({
+            title:
+              "metadata unavailable",
+            text:
+              "no matching book found"
+          });
+        }
+      }
+    );
+
+  form.addEventListener(
+    "submit",
+    (event) => {
+      event.preventDefault();
+
+      const payload = {
+        title: form.title.value.trim(),
+
+        subtitle:
+          form.subtitle.value.trim(),
+
+        authors: normalizeAuthors(
+          form.authors.value
+        ),
+
+        publisher:
+          form.publisher.value.trim(),
+
+        isbn10:
+          form.isbn10.value.trim(),
+
+        isbn13:
+          form.isbn13.value.trim(),
+
+        publishYear:
+          form.publishYear.value.trim(),
+
+        pageCount: Number(
+          form.pageCount.value
+        ),
+
+        language:
+          form.language.value.trim(),
+
+        format:
+          form.format.value.trim(),
+
+        series:
+          form.series.value.trim(),
+
+        quantity: Number(
+          form.quantity.value
+        ),
+
+        priority:
+          form.priority.value,
+
+        status:
+          form.status.value,
+
+        notes:
+          form.notes.value.trim()
+      };
+
+      if (mode === "edit") {
+        updateBook(book.id, payload);
+
+        notify({
+          title: "book updated",
+          text: payload.title
+        });
+      } else {
+        addBook(payload);
+
+        notify({
+          title: "book added",
+          text: payload.title
+        });
+      }
+
+      closeModal();
     }
-
-    if (mode === "edit") {
-      updateBook(book.id, payload);
-
-      notify({
-        title: "book updated",
-        text: payload.title
-      });
-    } else {
-      addBook(payload);
-
-      notify({
-        title: "book added",
-        text: payload.title
-      });
-    }
-
-    closeModal();
-  });
+  );
 
   form
-    .querySelector("#cancel-book-form")
-    .addEventListener("click", closeModal);
+    .querySelector("#cancel-button")
+    .addEventListener(
+      "click",
+      closeModal
+    );
 
   if (mode === "edit") {
     form
-      .querySelector("#delete-book")
-      .addEventListener("click", () => {
-        deleteBook(book.id);
+      .querySelector("#delete-button")
+      .addEventListener(
+        "click",
+        () => {
+          deleteBook(book.id);
 
-        notify({
-          title: "book removed",
-          text: book.title
-        });
+          notify({
+            title: "book removed",
+            text: book.title
+          });
 
-        closeModal();
-      });
+          closeModal();
+        }
+      );
   }
 
   return form;
