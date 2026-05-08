@@ -185,6 +185,37 @@ export function bulkDeleteBooks(
   notify();
 }
 
+export function reorderBooks(
+  oldIndex,
+  newIndex
+) {
+  if (
+    oldIndex < 0 ||
+    newIndex < 0 ||
+    oldIndex >= state.books.length ||
+    newIndex >= state.books.length
+  ) {
+    return;
+  }
+
+  const updated = [
+    ...state.books
+  ];
+
+  const [moved] =
+    updated.splice(oldIndex, 1);
+
+  updated.splice(
+    newIndex,
+    0,
+    moved
+  );
+
+  state.books = updated;
+
+  notify();
+}
+
 export function toggleSelection(
   id
 ) {
