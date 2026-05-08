@@ -2,20 +2,94 @@ import { openModal } from "../components/modal.js";
 
 import { createBookForm } from "../components/bookForm.js";
 
+function createRow(book, state) {
+  const row =
+    document.createElement("tr");
+
+  row.dataset.bookId = book.id;
+
+  row.innerHTML = `
+    <td>
+      <div>
+        <h3 class="book-meta-title">
+          ${book.title}
+        </h3>
+
+        <p class="book-meta-author">
+          ${
+            book.authors?.join(", ") ||
+            "unknown author"
+          }
+        </p>
+      </div>
+    </td>
+
+    <td>
+      ${book.publisher || "—"}
+    </td>
+
+    <td>
+      ${book.status}
+    </td>
+
+    <td>
+      ${book.priority}
+    </td>
+
+    <td>
+      ${book.quantity}
+    </td>
+
+    <td>
+      <div class="table-actions">
+        <button
+          class="action-button"
+          type="button"
+        >
+          edit
+        </button>
+      </div>
+    </td>
+  `;
+
+  row
+    .querySelector(".action-button")
+    .addEventListener(
+      "click",
+      () => {
+        openModal({
+          title: "edit book",
+
+          description:
+            "update collection details",
+
+          content:
+            createBookForm({
+              mode: "edit",
+              state,
+              book
+            })
+        });
+      }
+    );
+
+  return row;
+}
+
 export function renderTableView({
   container,
   books,
   state
 }) {
-  if (books.length === 0) {
+  if (!books.length) {
     container.innerHTML = `
       <section class="empty-state">
         <h2 class="empty-state__title">
-          no books yet
+          no matching books
         </h2>
 
         <p class="empty-state__text">
-          start building your long-term collection
+          adjust filters or add new books
         </p>
       </section>
     `;
@@ -23,7 +97,8 @@ export function renderTableView({
     return;
   }
 
-  const wrapper = document.createElement("div");
+  const wrapper =
+    document.createElement("div");
 
   wrapper.className = "table-view";
 
@@ -33,6 +108,7 @@ export function renderTableView({
         <thead>
           <tr>
             <th>book</th>
+            <th>publisher</th>
             <th>status</th>
             <th>priority</th>
             <th>qty</th>
@@ -45,63 +121,19 @@ export function renderTableView({
     </div>
   `;
 
-  const tbody = wrapper.querySelector("tbody");
+  const tbody =
+    wrapper.querySelector("tbody");
 
-  for (const book of books) {
-    const row = document.createElement("tr");
+  const fragment =
+    document.createDocumentFragment();
 
-    row.innerHTML = `
-      <td>
-        <div>
-          <h3 class="book-meta-title">
-            ${book.title}
-          </h3>
+  books.forEach((book) => {
+    fragment.append(
+      createRow(book, state)
+    );
+  });
 
-          <p class="book-meta-author">
-            ${
-              book.authors?.join(", ") ||
-              "unknown author"
-            }
-          </p>
-        </div>
-      </td>
-
-      <td>${book.status}</td>
-
-      <td>${book.priority}</td>
-
-      <td>${book.quantity}</td>
-
-      <td>
-        <div class="table-actions">
-          <button
-            class="action-button"
-            type="button"
-          >
-            edit
-          </button>
-        </div>
-      </td>
-    `;
-
-    row
-      .querySelector(".action-button")
-      .addEventListener("click", () => {
-        openModal({
-          title: "edit book",
-          description:
-            "update collection details",
-
-          content: createBookForm({
-            mode: "edit",
-            state,
-            book
-          })
-        });
-      });
-
-    tbody.append(row);
-  }
+  tbody.append(fragment);
 
   container.append(wrapper);
 }
