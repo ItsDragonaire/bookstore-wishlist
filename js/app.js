@@ -21,6 +21,8 @@ import {
 
 import { initializeKeyboardShortcuts } from "./ui/interactions/keyboard.js";
 
+import { initializeSwipeActions } from "./ui/interactions/swipeActions.js";
+
 const root =
   document.querySelector(
     "#view-root"
@@ -131,6 +133,7 @@ function sortBooks(
   const sorted = [...books].sort(
     (a, b) => {
       let first = a[by];
+
       let second = b[by];
 
       if (by === "author") {
@@ -142,6 +145,7 @@ function sortBooks(
       }
 
       first = normalize(first);
+
       second = normalize(second);
 
       if (first < second) {
@@ -163,15 +167,26 @@ function sortBooks(
   return sorted;
 }
 
-async function mountDragDrop(
-  view
+async function mountInteractions(
+  state,
+  books
 ) {
   destroyDragDrop();
 
-  if (view === "card") {
+  if (
+    state.ui.currentView ===
+    "card"
+  ) {
     await initializeDragDrop({
       containerSelector:
         "#sortable-card-grid"
+    });
+
+    initializeSwipeActions({
+      selector:
+        ".book-card",
+
+      books
     });
 
     return;
@@ -180,6 +195,13 @@ async function mountDragDrop(
   await initializeDragDrop({
     containerSelector:
       "#sortable-table-body"
+  });
+
+  initializeSwipeActions({
+    selector:
+      "tbody tr[data-book-id]",
+
+    books
   });
 }
 
@@ -221,8 +243,9 @@ async function render(state) {
     });
   }
 
-  await mountDragDrop(
-    state.ui.currentView
+  await mountInteractions(
+    state,
+    books
   );
 }
 
