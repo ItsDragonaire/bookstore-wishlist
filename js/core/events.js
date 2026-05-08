@@ -47,13 +47,17 @@ export function emit(
     return;
   }
 
-  for (const handler of handlers) {
-    handler(payload);
-  }
+  handlers.forEach(
+    (handler) => {
+      handler(payload);
+    }
+  );
 }
 
 export function clearEvent(
   eventName
 ) {
-  listeners.delete(eventName);
+  listeners.delete(
+    eventName
+  );
 }
