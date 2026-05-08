@@ -46,9 +46,13 @@ function getFilteredBooks(state) {
   return state.books.filter((book) => {
     const searchable = [
       book.title,
+      book.subtitle,
       ...(book.authors || []),
+      book.publisher,
+      book.isbn10,
       book.isbn13,
-      book.notes
+      book.notes,
+      book.series
     ]
       .join(" ")
       .toLowerCase();
@@ -102,8 +106,9 @@ themeToggle.addEventListener("click", () => {
 addBookButton.addEventListener("click", () => {
   openModal({
     title: "add book",
+
     description:
-      "manually add a book to your collection",
+      "add books manually, via isbn, or barcode scan",
 
     content: createBookForm({
       mode: "create",
