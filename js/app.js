@@ -9,6 +9,8 @@ import { initializeToolbar } from "./ui/components/toolbar.js";
 
 import { notify } from "./ui/components/notifications.js";
 
+import { initializeInstallPrompt } from "./pwa/installPrompt.js";
+
 import { openModal } from "./ui/components/modal.js";
 
 import { createBookForm } from "./ui/components/bookForm.js";
@@ -388,6 +390,8 @@ initializeToolbar();
 initializeKeyboardShortcuts();
 
 registerServiceWorker();
+
+initializeInstallPrompt();
 
 themeToggle.addEventListener(
   "click",
