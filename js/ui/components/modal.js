@@ -2,6 +2,8 @@ let activeModal = null;
 
 let escapeBound = false;
 
+let previousFocus = null;
+
 function createOverlay() {
   const overlay =
     document.createElement(
@@ -96,6 +98,14 @@ export function closeModal() {
     "modal-open"
   );
 
+  if (
+    previousFocus &&
+    typeof previousFocus.focus ===
+      "function"
+  ) {
+    previousFocus.focus();
+  }
+
   window.setTimeout(() => {
     activeModal?.remove();
 
@@ -110,6 +120,9 @@ export function openModal({
   size = "default"
 }) {
   closeModal();
+
+  previousFocus =
+  document.activeElement;
 
   const overlay =
     createOverlay();
@@ -132,10 +145,18 @@ export function openModal({
     "true"
   );
 
+  modal.setAttribute(
+    "aria-labelledby",
+    "modal-title"
+  );
+
   modal.innerHTML = `
     <header class="modal__header">
       <div>
-        <h2 class="modal__title">
+        <h2
+          class="modal__title"
+          id="modal-title"
+        >
           ${title}
         </h2>
 
