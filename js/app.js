@@ -254,7 +254,10 @@ async function render(state) {
     );
 
   const books =
-    sortBooks(filtered, state);
+    sortBooks(
+      filtered,
+      state
+    ).slice(0, 5000);
 
   collectionMeta.textContent =
     `${books.length} book${
@@ -310,6 +313,8 @@ async function render(state) {
   
   previousBookCount =
     books.length;
+
+}
 
 async function registerServiceWorker() {
   if (
