@@ -181,7 +181,8 @@ export async function fetchBookMetadataByISBN(
       error
     );
 
-  return null;
+    return null;
+  }
 }
 
 export async function searchBookMetadata({
