@@ -8,6 +8,11 @@ import { createFilters } from "./filters.js";
 
 import { exportBooksCsv } from "../../utils/csv.js";
 
+import {
+  exportJsonBackup,
+  importJsonBackup
+} from "../../utils/json.js";
+
 let filtersMounted = false;
 
 export function initializeToolbar() {
@@ -50,6 +55,102 @@ exportCsvButton.addEventListener(
   }
 );
 
+const exportJsonButton =
+  document.createElement(
+    "button"
+  );
+
+exportJsonButton.className =
+  "button button--secondary";
+
+exportJsonButton.type =
+  "button";
+
+exportJsonButton.textContent =
+  "backup json";
+
+exportJsonButton.addEventListener(
+  "click",
+  () => {
+    exportJsonBackup(
+      getState()
+    );
+  }
+);
+
+const importInput =
+  document.createElement(
+    "input"
+  );
+
+importInput.type = "file";
+
+importInput.accept =
+  "application/json";
+
+importInput.hidden = true;
+
+importInput.addEventListener(
+  "change",
+  async (event) => {
+    const file =
+      event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      const imported =
+        await importJsonBackup(
+          file
+        );
+
+      const {
+        replaceState
+      } = await import(
+        "../../core/state.js"
+      );
+
+      replaceState(
+        imported
+      );
+
+      alert(
+        "backup restored successfully"
+      );
+    } catch (error) {
+      alert(
+        error.message ||
+          "failed to restore backup"
+      );
+    }
+
+    importInput.value = "";
+  }
+);
+
+const importJsonButton =
+  document.createElement(
+    "button"
+  );
+
+importJsonButton.className =
+  "button button--secondary";
+
+importJsonButton.type =
+  "button";
+
+importJsonButton.textContent =
+  "import json";
+
+importJsonButton.addEventListener(
+  "click",
+  () => {
+    importInput.click();
+  }
+);
+
 const printButton =
   document.createElement(
     "button"
@@ -81,7 +182,10 @@ toolbar
   )
   ?.append(
     exportCsvButton,
-    printButton
+    exportJsonButton,
+    importJsonButton,
+    printButton,
+    importInput
   );
 
   const viewButtons =
