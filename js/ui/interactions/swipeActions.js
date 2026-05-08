@@ -252,6 +252,14 @@ export function initializeSwipeActions({
   ) {
     return;
   }
+  
+  if (
+    window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches
+  ) {
+    return;
+  }
 
   document
     .querySelectorAll(selector)
