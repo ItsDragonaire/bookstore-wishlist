@@ -128,7 +128,9 @@ async function cacheFirst(
 
   try {
     const response =
-      await fetch(request);
+      await fetch(request, {
+        cache: "no-cache"
+      });
 
     if (
       response &&
@@ -170,7 +172,9 @@ async function networkFirst(
 
   try {
     const response =
-      await fetch(request);
+      await fetch(request, {
+        cache: "no-cache"
+      });
 
     if (
       response &&
