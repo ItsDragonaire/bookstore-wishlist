@@ -11,6 +11,8 @@ import { notify } from "./ui/components/notifications.js";
 
 import { initializeInstallPrompt } from "./pwa/installPrompt.js";
 
+import { initializeOfflineState } from "./pwa/offline.js";
+
 import { openModal } from "./ui/components/modal.js";
 
 import { createBookForm } from "./ui/components/bookForm.js";
@@ -392,6 +394,8 @@ initializeKeyboardShortcuts();
 registerServiceWorker();
 
 initializeInstallPrompt();
+
+initializeOfflineState();
 
 themeToggle.addEventListener(
   "click",
