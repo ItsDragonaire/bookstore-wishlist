@@ -39,7 +39,7 @@ function resetTransform(
   element
 ) {
   element.style.transition =
-    "transform 180ms ease";
+    "transform 160ms cubic-bezier(0.22, 1, 0.36, 1)";
 
   element.style.transform =
     "translateX(0)";
@@ -51,7 +51,7 @@ function commitAction({
   book
 }) {
   element.style.transition =
-    "transform 180ms ease, opacity 180ms ease";
+    "transform 160ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms ease";
 
   element.style.opacity = "0";
 
