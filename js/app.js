@@ -28,6 +28,11 @@ const root =
     "#view-root"
   );
 
+const appShell =
+  document.querySelector(
+    ".app-shell"
+  );
+
 const collectionMeta =
   document.querySelector(
     "#collection-meta"
@@ -130,7 +135,7 @@ function sortBooks(
     direction
   } = state.ui.sort;
 
-  const sorted = [...books].sort(
+  return [...books].sort(
     (a, b) => {
       let first = a[by];
 
@@ -163,14 +168,41 @@ function sortBooks(
       return 0;
     }
   );
+}
 
-  return sorted;
+function activatePrintMode() {
+  document.body.classList.add(
+    "is-printing"
+  );
+
+  appShell?.setAttribute(
+    "data-printing",
+    "true"
+  );
+}
+
+function deactivatePrintMode() {
+  document.body.classList.remove(
+    "is-printing"
+  );
+
+  appShell?.removeAttribute(
+    "data-printing"
+  );
 }
 
 async function mountInteractions(
   state,
   books
 ) {
+  if (
+    document.body.classList.contains(
+      "is-printing"
+    )
+  ) {
+    return;
+  }
+
   destroyDragDrop();
 
   if (
@@ -233,13 +265,21 @@ async function render(state) {
     renderCardView({
       container: root,
       books,
-      state
+      state,
+      isPrint:
+        document.body.classList.contains(
+          "is-printing"
+        )
     });
   } else {
     renderTableView({
       container: root,
       books,
-      state
+      state,
+      isPrint:
+        document.body.classList.contains(
+          "is-printing"
+        )
     });
   }
 
@@ -285,6 +325,24 @@ addBookButton.addEventListener(
           state: getState()
         })
     });
+  }
+);
+
+window.addEventListener(
+  "beforeprint",
+  () => {
+    activatePrintMode();
+
+    render(getState());
+  }
+);
+
+window.addEventListener(
+  "afterprint",
+  () => {
+    deactivatePrintMode();
+
+    render(getState());
   }
 );
 
