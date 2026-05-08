@@ -163,7 +163,10 @@ export function renderCardView({
     );
 
   grid.className =
-    "card-grid";
+  "card-grid";
+
+  grid.id =
+  "sortable-card-grid";
 
   const fragment =
     document.createDocumentFragment();
