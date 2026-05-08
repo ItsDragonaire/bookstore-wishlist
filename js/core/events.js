@@ -12,6 +12,17 @@ export function on(eventName, handler) {
   };
 }
 
+export function once(eventName, handler) {
+  const unsubscribe = on(
+    eventName,
+    (payload) => {
+      unsubscribe();
+
+      handler(payload);
+    }
+  );
+}
+
 export function emit(eventName, payload) {
   const handlers = listeners.get(eventName);
 
