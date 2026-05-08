@@ -144,7 +144,10 @@ export function renderCardView({
 }) {
   if (!books.length) {
     container.innerHTML = `
-      <section class="empty-state">
+      <section
+        class="empty-state"
+        role="status"
+      >
         <h2 class="empty-state__title">
           no matching books
         </h2>
