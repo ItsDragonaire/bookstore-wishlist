@@ -24,19 +24,47 @@ export function loadState() {
   }
 }
 
-export function saveState(state) {
-  try {
-    const validated = validateState(state);
+let pendingState = null;
 
+let writeScheduled = false;
+
+function commitSave() {
+  if (!pendingState) {
+    writeScheduled = false;
+
+    return;
+  }
+
+  try {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify(validated)
+      JSON.stringify(pendingState)
     );
-
-    return true;
   } catch (error) {
-    console.error("failed to save state", error);
-
-    return false;
+    console.error(
+      "storage save failed",
+      error
+    );
   }
+
+  pendingState = null;
+
+  writeScheduled = false;
+}
+
+export function saveState(state) {
+  pendingState = state;
+
+  if (writeScheduled) {
+    return;
+  }
+
+  writeScheduled = true;
+
+  const schedule =
+    window.requestIdleCallback ||
+    ((callback) =>
+      window.setTimeout(callback, 120));
+
+  schedule(commitSave);
 }
