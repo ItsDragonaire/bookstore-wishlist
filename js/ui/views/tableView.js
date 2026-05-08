@@ -123,7 +123,8 @@ function createRow(book, state) {
 export function renderTableView({
   container,
   books,
-  state
+  state,
+  isPrint = false
 }) {
   if (!books.length) {
     container.innerHTML = `
