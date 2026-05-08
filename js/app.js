@@ -298,9 +298,96 @@ async function render(state) {
   );
 }
 
+async function registerServiceWorker() {
+  if (
+    !(
+      "serviceWorker" in
+      navigator
+    )
+  ) {
+    return;
+  }
+
+  try {
+    const registration =
+      await navigator.serviceWorker.register(
+        "./sw.js"
+      );
+
+    registration.addEventListener(
+      "updatefound",
+      () => {
+        const worker =
+          registration.installing;
+
+        if (!worker) {
+          return;
+        }
+
+        worker.addEventListener(
+          "statechange",
+          () => {
+            if (
+              worker.state ===
+                "installed" &&
+              navigator
+                .serviceWorker
+                .controller
+            ) {
+              notify({
+                title:
+                  "update available",
+
+                text:
+                  "refresh to use the latest version",
+
+                type:
+                  "info",
+
+                duration: 6000
+              });
+            }
+          }
+        );
+      }
+    );
+
+    navigator.serviceWorker.addEventListener(
+      "controllerchange",
+      () => {
+        notify({
+          title:
+            "app updated",
+
+          text:
+            "latest version is now active",
+
+          type:
+            "success"
+        });
+      }
+    );
+  } catch {
+    notify({
+      title:
+        "offline mode unavailable",
+
+      text:
+        "service worker registration failed",
+
+      type:
+        "error",
+
+      duration: 5000
+    });
+  }
+}
+
 initializeToolbar();
 
 initializeKeyboardShortcuts();
+
+registerServiceWorker();
 
 themeToggle.addEventListener(
   "click",
