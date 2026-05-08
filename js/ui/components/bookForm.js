@@ -387,6 +387,18 @@ export function createBookForm({
           return;
         }
 
+        const submitButton =
+          form.querySelector(
+            '[type="submit"]'
+          );
+        
+        form.classList.add(
+          "is-loading"
+        );
+        
+        submitButton.disabled =
+          true;
+
         try {
           const metadata =
             await fetchBookMetadataByISBN(
@@ -409,7 +421,14 @@ export function createBookForm({
             text:
               "no matching book found"
           });
-        }
+        } finally {
+            form.classList.remove(
+              "is-loading"
+            );
+          
+            submitButton.disabled =
+              false;
+          }
       }
     );
 
