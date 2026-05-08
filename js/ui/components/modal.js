@@ -1,5 +1,7 @@
 let activeModal = null;
 
+let escapeBound = false;
+
 function createOverlay() {
   const overlay =
     document.createElement(
@@ -68,6 +70,17 @@ function trapFocus(
   );
 
   first?.focus();
+}
+
+function handleEscape(
+  event
+) {
+  if (
+    event.key ===
+    "Escape"
+  ) {
+    closeModal();
+  }
 }
 
 export function closeModal() {
@@ -170,25 +183,13 @@ export function openModal({
     }
   );
 
-  window.addEventListener(
-    "keydown",
-    handleEscape
-  );
-
-  function handleEscape(
-    event
-  ) {
-    if (
-      event.key ===
-      "Escape"
-    ) {
-      closeModal();
-
-      window.removeEventListener(
-        "keydown",
-        handleEscape
-      );
-    }
+  if (!escapeBound) {
+    window.addEventListener(
+      "keydown",
+      handleEscape
+    );
+  
+    escapeBound = true;
   }
 
   const contentRoot =
