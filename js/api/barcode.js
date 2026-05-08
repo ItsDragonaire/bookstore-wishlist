@@ -36,6 +36,19 @@ export async function startBarcodeScanner({
       },
 
       (errorMessage) => {
+        if (
+          String(errorMessage).includes(
+            "NotFoundException"
+          )
+        ) {
+          return;
+        }
+      
+        console.warn(
+          "barcode scan warning",
+          errorMessage
+        );
+      
         onError?.(errorMessage);
       }
     );
