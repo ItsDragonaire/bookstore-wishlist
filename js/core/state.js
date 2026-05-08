@@ -37,9 +37,38 @@ export function addBook(bookData) {
 
     title: bookData.title || "untitled",
 
-    authors: bookData.authors || [],
+    subtitle:
+      bookData.subtitle || "",
 
-    isbn13: bookData.isbn13 || "",
+    authors:
+      bookData.authors || [],
+
+    publisher:
+      bookData.publisher || "",
+
+    isbn10:
+      bookData.isbn10 || "",
+
+    isbn13:
+      bookData.isbn13 || "",
+
+    publishYear:
+      bookData.publishYear || "",
+
+    pageCount:
+      Number(bookData.pageCount) || 0,
+
+    language:
+      bookData.language || "",
+
+    format:
+      bookData.format || "",
+
+    series:
+      bookData.series || "",
+
+    coverUrl:
+      bookData.coverUrl || "",
 
     quantity:
       Number(bookData.quantity) || 1,
@@ -50,7 +79,8 @@ export function addBook(bookData) {
     status:
       bookData.status || "wishlist",
 
-    notes: bookData.notes || ""
+    notes:
+      bookData.notes || ""
   });
 
   persist();
