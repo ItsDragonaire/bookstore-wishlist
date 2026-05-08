@@ -10,6 +10,12 @@ function emit() {
   }
 }
 
+function persist() {
+  saveState(state);
+
+  emit();
+}
+
 export function getState() {
   return structuredClone(state);
 }
@@ -22,61 +28,78 @@ export function subscribe(listener) {
   };
 }
 
-export function setState(updater) {
-  const nextState =
-    typeof updater === "function"
-      ? updater(getState())
-      : updater;
-
-  Object.assign(state, nextState);
-
-  saveState(state);
-
-  emit();
-}
-
 export function addBook(bookData) {
-  const nextBook = {
+  state.books.unshift({
     id: crypto.randomUUID(),
+
     createdAt: Date.now(),
     updatedAt: Date.now(),
 
     title: bookData.title || "untitled",
+
     authors: bookData.authors || [],
-    priority: bookData.priority || "medium",
-    status: bookData.status || "wishlist",
 
-    quantity: 1,
-    notes: ""
-  };
+    isbn13: bookData.isbn13 || "",
 
-  state.books.unshift(nextBook);
+    quantity:
+      Number(bookData.quantity) || 1,
 
-  saveState(state);
+    priority:
+      bookData.priority || "medium",
 
-  emit();
+    status:
+      bookData.status || "wishlist",
+
+    notes: bookData.notes || ""
+  });
+
+  persist();
+}
+
+export function updateBook(id, updates) {
+  const target = state.books.find(
+    (book) => book.id === id
+  );
+
+  if (!target) {
+    return;
+  }
+
+  Object.assign(target, updates, {
+    updatedAt: Date.now()
+  });
+
+  persist();
+}
+
+export function deleteBook(id) {
+  const index = state.books.findIndex(
+    (book) => book.id === id
+  );
+
+  if (index === -1) {
+    return;
+  }
+
+  state.books.splice(index, 1);
+
+  persist();
 }
 
 export function updateSearch(query) {
   state.ui.searchQuery = query;
 
-  saveState(state);
-
-  emit();
+  persist();
 }
 
 export function setTheme(theme) {
   state.ui.theme = theme;
 
-  saveState(state);
-
-  emit();
+  persist();
 }
 
 export function setView(view) {
   state.ui.currentView = view;
 
-  saveState(state);
-
-  emit();
+  persist();
 }
