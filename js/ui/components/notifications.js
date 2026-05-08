@@ -1,3 +1,5 @@
+const MAX_NOTIFICATIONS = 4;
+
 let stack =
   document.querySelector(
     ".notification-stack"
@@ -11,6 +13,16 @@ if (!stack) {
 
   stack.className =
     "notification-stack";
+
+  stack.setAttribute(
+    "aria-live",
+    "polite"
+  );
+
+  stack.setAttribute(
+    "aria-label",
+    "notifications"
+  );
 
   document.body.append(stack);
 }
@@ -78,6 +90,10 @@ function buildNotification({
 function removeNotification(
   element
 ) {
+  if (!element) {
+    return;
+  }
+
   element.classList.add(
     "is-removing"
   );
@@ -85,6 +101,27 @@ function removeNotification(
   window.setTimeout(() => {
     element.remove();
   }, 180);
+}
+
+function trimNotifications() {
+  const notifications = [
+    ...stack.children
+  ];
+
+  if (
+    notifications.length <=
+    MAX_NOTIFICATIONS
+  ) {
+    return;
+  }
+
+  notifications
+    .slice(
+      0,
+      notifications.length -
+        MAX_NOTIFICATIONS
+    )
+    .forEach(removeNotification);
 }
 
 export function notify({
@@ -102,11 +139,17 @@ export function notify({
 
   stack.append(notification);
 
+  trimNotifications();
+
   requestAnimationFrame(() => {
     notification.classList.add(
       "is-visible"
     );
   });
+
+  if (duration <= 0) {
+    return;
+  }
 
   window.setTimeout(() => {
     removeNotification(
