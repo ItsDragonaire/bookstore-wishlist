@@ -11,6 +11,13 @@ function updateDomState(
       ? "true"
       : "false";
 
+  document.body.setAttribute(
+    "data-online",
+    connected
+      ? "true"
+      : "false"
+  );
+
   document.body.classList.toggle(
     "is-offline",
     !connected
