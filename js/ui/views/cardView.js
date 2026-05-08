@@ -1,14 +1,28 @@
+import { toggleSelection } from "../../core/state.js";
+
 import { openModal } from "../components/modal.js";
 
 import { createBookForm } from "../components/bookForm.js";
 
 function createCard(book, state) {
+  const selected =
+    state.ui.selection.includes(
+      book.id
+    );
+
   const card =
-    document.createElement("article");
+    document.createElement(
+      "article"
+    );
 
-  card.className = "book-card";
+  card.className =
+    "book-card";
 
-  card.dataset.bookId = book.id;
+  if (selected) {
+    card.classList.add(
+      "is-selected"
+    );
+  }
 
   card.innerHTML = `
     <div class="book-card__top">
@@ -19,20 +33,24 @@ function createCard(book, state) {
 
         <p class="book-card__author">
           ${
-            book.authors?.join(", ") ||
+            book.authors?.join(
+              ", "
+            ) ||
             "unknown author"
           }
         </p>
       </div>
 
-      <div class="card-actions">
-        <button
-          class="action-button"
-          type="button"
-        >
-          edit
-        </button>
-      </div>
+      <input
+        type="checkbox"
+        class="selection-checkbox"
+        ${
+          selected
+            ? "checked"
+            : ""
+        }
+        aria-label="select book"
+      />
     </div>
 
     <div class="book-card__details">
@@ -68,10 +86,34 @@ function createCard(book, state) {
       `
         : ""
     }
+
+    <div class="card-actions">
+      <button
+        class="action-button"
+        type="button"
+      >
+        edit
+      </button>
+    </div>
   `;
 
   card
-    .querySelector(".action-button")
+    .querySelector(
+      ".selection-checkbox"
+    )
+    .addEventListener(
+      "change",
+      () => {
+        toggleSelection(
+          book.id
+        );
+      }
+    );
+
+  card
+    .querySelector(
+      ".action-button"
+    )
     .addEventListener(
       "click",
       () => {
@@ -116,9 +158,12 @@ export function renderCardView({
   }
 
   const grid =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
-  grid.className = "card-grid";
+  grid.className =
+    "card-grid";
 
   const fragment =
     document.createDocumentFragment();
