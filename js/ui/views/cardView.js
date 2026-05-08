@@ -179,8 +179,12 @@ export function renderCardView({
   });
 
   grid.append(fragment);
-
-if (isPrint) {
+  
+container
+  .querySelectorAll(".print-summary")
+  .forEach((node) => node.remove());
+  
+ if (isPrint) {
   const summary =
     document.createElement(
       "section"
@@ -204,8 +208,7 @@ if (isPrint) {
     </div>
   `;
 
-  container.prepend(summary);
+  container.append(summary);
 }
-  
-  container.append(grid);
-}
+
+container.append(grid);
