@@ -1,23 +1,92 @@
-const modalRoot = document.createElement("div");
+let activeModal = null;
 
-modalRoot.className = "modal-root";
-modalRoot.setAttribute("aria-hidden", "true");
+function createOverlay() {
+  const overlay =
+    document.createElement(
+      "div"
+    );
 
-document.body.append(modalRoot);
+  overlay.className =
+    "modal-overlay";
 
-let activeCleanup = null;
+  return overlay;
+}
 
-function closeModal() {
-  modalRoot.classList.remove("is-visible");
-  modalRoot.setAttribute("aria-hidden", "true");
+function trapFocus(
+  container
+) {
+  const selectors = [
+    "button",
+    "a[href]",
+    "input",
+    "select",
+    "textarea",
+    "[tabindex]:not([tabindex='-1'])"
+  ];
 
-  document.body.classList.remove("scroll-lock");
+  const focusables = [
+    ...container.querySelectorAll(
+      selectors.join(",")
+    )
+  ];
 
-  setTimeout(() => {
-    modalRoot.innerHTML = "";
+  const first =
+    focusables[0];
 
-    activeCleanup?.();
-    activeCleanup = null;
+  const last =
+    focusables.at(-1);
+
+  container.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key !== "Tab"
+      ) {
+        return;
+      }
+
+      if (
+        event.shiftKey &&
+        document.activeElement ===
+          first
+      ) {
+        event.preventDefault();
+
+        last?.focus();
+      }
+
+      if (
+        !event.shiftKey &&
+        document.activeElement ===
+          last
+      ) {
+        event.preventDefault();
+
+        first?.focus();
+      }
+    }
+  );
+
+  first?.focus();
+}
+
+export function closeModal() {
+  if (!activeModal) {
+    return;
+  }
+
+  activeModal.classList.add(
+    "is-closing"
+  );
+
+  document.body.classList.remove(
+    "modal-open"
+  );
+
+  window.setTimeout(() => {
+    activeModal?.remove();
+
+    activeModal = null;
   }, 180);
 }
 
@@ -25,87 +94,133 @@ export function openModal({
   title,
   description = "",
   content,
-  onClose
+  size = "default"
 }) {
-  activeCleanup = onClose || null;
+  closeModal();
 
-  modalRoot.innerHTML = `
-    <div class="modal-backdrop"></div>
+  const overlay =
+    createOverlay();
 
-    <section
-      class="modal-panel"
-      role="dialog"
-      aria-modal="true"
-      aria-label="${title}"
-    >
-      <header class="modal-header">
-        <div>
-          <h2 class="modal-title">${title}</h2>
+  const modal =
+    document.createElement(
+      "section"
+    );
 
-          ${
-            description
-              ? `
-                <p class="modal-description">
-                  ${description}
-                </p>
-              `
-              : ""
-          }
-        </div>
+  modal.className =
+    `modal modal--${size}`;
 
-        <button
-          class="modal-close"
-          type="button"
-          aria-label="close modal"
-        >
-          ×
-        </button>
-      </header>
+  modal.setAttribute(
+    "role",
+    "dialog"
+  );
 
-      <div class="modal-content"></div>
-    </section>
+  modal.setAttribute(
+    "aria-modal",
+    "true"
+  );
+
+  modal.innerHTML = `
+    <header class="modal__header">
+      <div>
+        <h2 class="modal__title">
+          ${title}
+        </h2>
+
+        ${
+          description
+            ? `
+            <p class="modal__description">
+              ${description}
+            </p>
+          `
+            : ""
+        }
+      </div>
+
+      <button
+        class="modal__close"
+        type="button"
+        aria-label="close dialog"
+      >
+        ×
+      </button>
+    </header>
+
+    <div class="modal__content"></div>
   `;
 
-  modalRoot
-    .querySelector(".modal-content")
-    .append(content);
+  modal
+    .querySelector(
+      ".modal__close"
+    )
+    .addEventListener(
+      "click",
+      closeModal
+    );
 
-  modalRoot.classList.add("is-visible");
-  modalRoot.setAttribute("aria-hidden", "false");
+  overlay.addEventListener(
+    "click",
+    (event) => {
+      if (
+        event.target ===
+        overlay
+      ) {
+        closeModal();
+      }
+    }
+  );
 
-  document.body.classList.add("scroll-lock");
-
-  modalRoot
-    .querySelector(".modal-backdrop")
-    .addEventListener("click", closeModal);
-
-  modalRoot
-    .querySelector(".modal-close")
-    .addEventListener("click", closeModal);
-
-  document.addEventListener(
+  window.addEventListener(
     "keydown",
     handleEscape
   );
 
-  requestAnimationFrame(() => {
-    content.querySelector(
-      "input, textarea, select"
-    )?.focus();
-  });
-}
+  function handleEscape(
+    event
+  ) {
+    if (
+      event.key ===
+      "Escape"
+    ) {
+      closeModal();
 
-function handleEscape(event) {
-  if (event.key !== "Escape") {
-    return;
+      window.removeEventListener(
+        "keydown",
+        handleEscape
+      );
+    }
   }
 
-  document.removeEventListener(
-    "keydown",
-    handleEscape
+  const contentRoot =
+    modal.querySelector(
+      ".modal__content"
+    );
+
+  if (content) {
+    contentRoot.append(
+      content
+    );
+  }
+
+  overlay.append(modal);
+
+  document.body.append(
+    overlay
   );
 
-  closeModal();
-}
+  document.body.classList.add(
+    "modal-open"
+  );
 
-export { closeModal };
+  activeModal = overlay;
+
+  requestAnimationFrame(() => {
+    overlay.classList.add(
+      "is-visible"
+    );
+  });
+
+  trapFocus(modal);
+
+  return modal;
+}
