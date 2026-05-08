@@ -7,6 +7,26 @@ import { emit } from "./events.js";
 
 const state = loadState();
 
+if (!state.ui.filters) {
+  state.ui.filters = {
+    status: "",
+    priority: "",
+    tags: "",
+    publisher: ""
+  };
+}
+
+if (!state.ui.sort) {
+  state.ui.sort = {
+    by: "createdAt",
+    direction: "desc"
+  };
+}
+
+if (!state.ui.selection) {
+  state.ui.selection = [];
+}
+
 const listeners = new Set();
 
 function notify() {
@@ -40,7 +60,9 @@ export function addBook(bookData) {
     createdAt: Date.now(),
     updatedAt: Date.now(),
 
-    title: bookData.title || "",
+    title:
+      bookData.title || "",
+
     subtitle:
       bookData.subtitle || "",
 
@@ -81,9 +103,11 @@ export function addBook(bookData) {
       bookData.priority || "medium",
 
     status:
-      bookData.status || "wishlist",
+      bookData.status ||
+      "wishlist",
 
-    tags: bookData.tags || [],
+    tags:
+      bookData.tags || [],
 
     notes:
       bookData.notes || ""
@@ -112,15 +136,78 @@ export function updateBook(
 }
 
 export function deleteBook(id) {
-  const index = state.books.findIndex(
-    (book) => book.id === id
-  );
+  const index =
+    state.books.findIndex(
+      (book) =>
+        book.id === id
+    );
 
   if (index === -1) {
     return;
   }
 
   state.books.splice(index, 1);
+
+  notify();
+}
+
+export function bulkUpdateBooks(
+  ids,
+  updates
+) {
+  state.books.forEach((book) => {
+    if (
+      ids.includes(book.id)
+    ) {
+      Object.assign(
+        book,
+        updates,
+        {
+          updatedAt:
+            Date.now()
+        }
+      );
+    }
+  });
+
+  notify();
+}
+
+export function bulkDeleteBooks(
+  ids
+) {
+  state.books =
+    state.books.filter(
+      (book) =>
+        !ids.includes(book.id)
+    );
+
+  notify();
+}
+
+export function toggleSelection(
+  id
+) {
+  const exists =
+    state.ui.selection.includes(
+      id
+    );
+
+  if (exists) {
+    state.ui.selection =
+      state.ui.selection.filter(
+        (value) =>
+          value !== id
+      );
+  } else {
+    state.ui.selection.push(id);
+  }
+
+  notify();
+}
+
+export function clearSelection() {
+  state.ui.selection = [];
 
   notify();
 }
