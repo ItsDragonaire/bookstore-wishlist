@@ -1,0 +1,57 @@
+:root {
+}
+
+.inline-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.hidden {
+  display: none;
+}
+
+#scannerReader {
+  width: 100%;
+  min-height: 300px;
+}
+
+@media (max-width: 900px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .button-group {
+    flex-wrap: wrap;
+  }
+}
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .controls-panel,
+  .topbar-actions,
+  .scanner-panel,
+  .inline-actions {
+    display: none !important;
+  }
+
+  .card {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+
+  table {
+    font-size: 11px;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+}
