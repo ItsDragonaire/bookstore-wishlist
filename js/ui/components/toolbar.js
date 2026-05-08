@@ -24,20 +24,47 @@ export function initializeToolbar() {
     filtersMounted = true;
   }
 
-  const printButton =
-    document.createElement(
-      "button"
-    );
+  const exportCsvButton =
+  document.createElement(
+    "button"
+  );
 
-  printButton.className =
-    "button button--secondary";
+exportCsvButton.className =
+  "button button--secondary";
 
-  printButton.type = "button";
+exportCsvButton.type =
+  "button";
 
-  printButton.textContent =
-    "print";
+exportCsvButton.textContent =
+  "export csv";
 
-  printButton.addEventListener(
+exportCsvButton.addEventListener(
+  "click",
+  () => {
+    const state =
+      getState();
+
+    exportBooksCsv({
+      books: state.books
+    });
+  }
+);
+
+const printButton =
+  document.createElement(
+    "button"
+  );
+
+printButton.className =
+  "button button--secondary";
+
+printButton.type =
+  "button";
+
+printButton.textContent =
+  "print";
+
+printButton.addEventListener(
   "click",
   () => {
     setPrintMode(true);
@@ -48,11 +75,14 @@ export function initializeToolbar() {
   }
 );
 
-  toolbar
-    .querySelector(
-      ".toolbar__actions"
-    )
-    ?.append(printButton);
+toolbar
+  .querySelector(
+    ".toolbar__actions"
+  )
+  ?.append(
+    exportCsvButton,
+    printButton
+  );
 
   const viewButtons =
     document.querySelectorAll(
