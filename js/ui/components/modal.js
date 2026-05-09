@@ -119,8 +119,16 @@ export function openModal({
   content,
   size = "default"
 }) {
-  closeModal();
-
+  if (activeModal) {
+    activeModal.remove();
+  
+    activeModal = null;
+  
+    document.body.classList.remove(
+      "modal-open"
+    );
+  }
+  
   previousFocus =
   document.activeElement;
 
