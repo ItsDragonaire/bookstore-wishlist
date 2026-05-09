@@ -4,7 +4,10 @@ import {
   updateBook
 } from "../../core/state.js";
 
-import { fetchBookMetadataByISBN } from "../../api/metadata.js";
+import {
+  fetchBookMetadataByISBN,
+  searchBookMetadata
+} from "../../api/metadata.js";
 
 import { openModal, closeModal } from "./modal.js";
 
@@ -50,6 +53,67 @@ function populateForm(form, metadata) {
   );
 }
 
+function renderSearchResults({
+  container,
+  results,
+  onSelect
+}) {
+  if (!results.length) {
+    container.innerHTML = `
+      <div class="empty-results">
+        no matching books found
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML =
+    results
+      .map(
+        (result, index) => `
+          <button
+            type="button"
+            class="search-result"
+            data-index="${index}"
+          >
+            <strong>
+              ${result.title}
+            </strong>
+
+            <span>
+              ${
+                result.authors?.join(
+                  ", "
+                ) || "unknown author"
+              }
+            </span>
+          </button>
+        `
+      )
+      .join("");
+
+  container
+    .querySelectorAll(
+      ".search-result"
+    )
+    .forEach((button) => {
+      button.addEventListener(
+        "click",
+        () => {
+          onSelect(
+            results[
+              Number(
+                button.dataset
+                  .index
+              )
+            ]
+          );
+        }
+      );
+    });
+}
+
 export function createBookForm({
   mode = "create",
   state,
@@ -60,22 +124,65 @@ export function createBookForm({
   form.className = "form-grid";
 
   form.innerHTML = `
-    <div class="table-actions">
-      <button
-        type="button"
-        class="button button--secondary"
-        id="scan-button"
-      >
-        scan isbn
-      </button>
+    <div class="lookup-section">
 
+      <div class="table-actions">
+        <button
+          type="button"
+          class="button button--secondary"
+          id="scan-button"
+        >
+          scan isbn
+        </button>
+    
+        <button
+          type="button"
+          class="button button--secondary"
+          id="fetch-button"
+        >
+          fetch isbn metadata
+        </button>
+      </div>
+    
+      <div class="form-row form-row--split">
+        <div class="form-field">
+          <label class="form-label">
+            search title
+          </label>
+    
+          <input
+            class="input"
+            id="title-search"
+            placeholder="book title"
+          />
+        </div>
+    
+        <div class="form-field">
+          <label class="form-label">
+            search author
+          </label>
+    
+          <input
+            class="input"
+            id="author-search"
+            placeholder="author name"
+          />
+        </div>
+      </div>
+    
       <button
         type="button"
         class="button button--secondary"
-        id="fetch-button"
+        id="search-button"
       >
-        fetch metadata
+        search by title + author
       </button>
+    
+      <section
+        class="search-results"
+        id="search-results"
+      ></section>
+    
     </div>
 
     <div class="form-row form-row--split">
@@ -431,6 +538,96 @@ export function createBookForm({
           }
       }
     );
+
+  form
+  .querySelector("#search-button")
+  .addEventListener(
+    "click",
+    async () => {
+      const title =
+        form
+          .querySelector(
+            "#title-search"
+          )
+          .value.trim();
+
+      const author =
+        form
+          .querySelector(
+            "#author-search"
+          )
+          .value.trim();
+
+      if (
+        !title &&
+        !author
+      ) {
+        notify({
+          title:
+            "search required",
+
+          text:
+            "enter a title or author"
+        });
+
+        return;
+      }
+
+      const resultsContainer =
+        form.querySelector(
+          "#search-results"
+        );
+
+      resultsContainer.innerHTML =
+        `
+          <div class="search-loading">
+            searching books…
+          </div>
+        `;
+
+      try {
+        const results =
+          await searchBookMetadata({
+            title,
+            author
+          });
+
+        renderSearchResults({
+          container:
+            resultsContainer,
+
+          results,
+
+          onSelect(
+            metadata
+          ) {
+            populateForm(
+              form,
+              metadata
+            );
+
+            resultsContainer.innerHTML =
+              "";
+
+            notify({
+              title:
+                "metadata loaded",
+
+              text:
+                metadata.title
+            });
+          }
+        });
+      } catch {
+        resultsContainer.innerHTML =
+          `
+            <div class="empty-results">
+              unable to search books
+            </div>
+          `;
+      }
+    }
+  );
 
   form.addEventListener(
     "submit",
