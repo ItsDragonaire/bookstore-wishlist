@@ -196,13 +196,39 @@ export async function searchBookMetadata({
         author
       });
 
-    if (results.length) {
+    if (
+      Array.isArray(
+        results
+      ) &&
+      results.length
+    ) {
       return results;
     }
-  } catch {}
+  } catch (error) {
+    console.warn(
+      "openlibrary search failed",
+      error
+    );
+  }
 
-  return searchGoogleBooks({
-    title,
-    author
-  });
+  try {
+    const fallback =
+      await searchGoogleBooks({
+        title,
+        author
+      });
+
+    return Array.isArray(
+      fallback
+    )
+      ? fallback
+      : [];
+  } catch (error) {
+    console.warn(
+      "google books search failed",
+      error
+    );
+
+    return [];
+  }
 }
