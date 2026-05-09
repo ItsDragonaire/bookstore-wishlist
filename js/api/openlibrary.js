@@ -112,13 +112,13 @@ export async function searchOpenLibraryBooks({
   title,
   author = ""
 }) {
-  const query = new URLSearchParams({
-    title,
-    author
-  });
-
+  const query =
+    [title, author]
+      .filter(Boolean)
+      .join(" ");
+  
   const endpoint =
-    `${APP_CONFIG.metadata.openLibraryBase}/search.json?${query}`;
+    `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=10`;
 
   const response = await fetch(endpoint);
 
@@ -128,22 +128,59 @@ export async function searchOpenLibraryBooks({
     );
   }
 
-  const data = await response.json();
+  const data =
+    await response.json();
+  
+  const docs =
+    Array.isArray(data.docs)
+      ? data.docs
+      : [];
 
-  return (data.docs || [])
-    .slice(0, 10)
-    .map((item) => ({
-      title: clean(item.title),
-      authors: item.author_name || [],
-      publishYear:
-        item.first_publish_year?.toString() ||
-        "",
-      isbn13:
-        item.isbn?.find(
-          (value) => value.length === 13
-        ) || "",
-      coverUrl: item.cover_i
-        ? `https://covers.openlibrary.org/b/id/${item.cover_i}-L.jpg`
+  return docs.map((doc) => ({
+    title:
+      doc.title || "",
+  
+    subtitle:
+      doc.subtitle || "",
+  
+    authors:
+      Array.isArray(
+        doc.author_name
+      )
+        ? doc.author_name
+        : [],
+  
+    publisher:
+      Array.isArray(
+        doc.publisher
+      )
+        ? doc.publisher[0]
+        : "",
+  
+    publishYear:
+      String(
+        doc.first_publish_year || ""
+      ),
+  
+    isbn13:
+      Array.isArray(doc.isbn)
+        ? doc.isbn.find(
+            (value) =>
+              value.length === 13
+          ) || ""
+        : "",
+  
+    isbn10:
+      Array.isArray(doc.isbn)
+        ? doc.isbn.find(
+            (value) =>
+              value.length === 10
+          ) || ""
+        : "",
+  
+    coverUrl:
+      doc.cover_i
+        ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`
         : ""
-    }));
+  }));
 }
