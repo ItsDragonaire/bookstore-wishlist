@@ -119,6 +119,15 @@ export function openModal({
   content,
   size = "default"
 }) {
+  const existing =
+    document.querySelector(
+      ".modal-overlay"
+    );
+  
+  if (existing) {
+    existing.remove();
+  }
+  
   if (activeModal) {
     activeModal.remove();
   
@@ -191,14 +200,24 @@ export function openModal({
     <div class="modal__content"></div>
   `;
 
-  modal
-    .querySelector(
+  let closeButton =
+    modal.querySelector(
       ".modal__close"
-    )
-    .addEventListener(
-      "click",
-      closeModal
     );
+  
+  closeButton.replaceWith(
+    closeButton.cloneNode(true)
+  );
+  
+  closeButton =
+    modal.querySelector(
+      ".modal__close"
+    );
+  
+  closeButton.addEventListener(
+    "click",
+    closeModal
+  );
 
   overlay.addEventListener(
     "click",
