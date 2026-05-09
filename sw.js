@@ -1,5 +1,5 @@
 const CACHE_VERSION =
-  "bookstore-cache-v1";
+  "bookstore-cache-v7";
 
 const APP_SHELL_CACHE =
   `${CACHE_VERSION}-shell`;
